@@ -64,8 +64,18 @@ class DetectionService extends ChangeNotifier {
         final List<DetectedObject> allObjects = [];
         
         // Image dimensions needed for coordinate normalization
-        final double imgWidth = inputImage.metadata?.size.width ?? 720;
-        final double imgHeight = inputImage.metadata?.size.height ?? 1280;
+        // We must swap dimensions if the image is rotated 90 or 270 degrees
+        // because ML Kit's result Rect is in the rotated image coordinate space
+        double imgWidth = inputImage.metadata?.size.width ?? 720;
+        double imgHeight = inputImage.metadata?.size.height ?? 1280;
+        
+        final rotation = inputImage.metadata?.rotation ?? ml.InputImageRotation.rotation0deg;
+        if (rotation == ml.InputImageRotation.rotation90deg || 
+            rotation == ml.InputImageRotation.rotation270deg) {
+          final temp = imgWidth;
+          imgWidth = imgHeight;
+          imgHeight = temp;
+        }
 
         for (int i = 0; i < objects.length; i++) {
           final obj = objects[i];
