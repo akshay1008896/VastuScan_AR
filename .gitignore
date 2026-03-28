@@ -1,0 +1,69 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate.log
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch.json and tasks.json which are often
+# preferred to be committed. However, settings.json and sections of sync
+# are usually best kept local.
+# .vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+__pycache__/
+build/
+pubspec.lock
+
+# Android related
+**/android/**/generated/
+**/android/key.properties
+**/android/local.properties
+**/android/app/google-services.json
+**/android/app/src/main/res/values/strings.xml
+.gradle/
+captures/
+
+# iOS related
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.[h|m]
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/ephemeral/
+**/ios/Config/config.json
+**/ios/Config/com.google.Firebase.plist
+
+# Symbolication related
+app.*.symbols
+app.*.map.json
+
+# Java related
+jdk17/
+jdk17.zip
+
+# Logs and debug files
+analyze_output.txt
+build_log*.txt

@@ -1,0 +1,455 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-03-28",
+  "rules": [
+    {
+      "id": "main_entrance",
+      "category": "Land & Entrance",
+      "element": "Main Entrance / Door",
+      "ideal_direction": "North / East",
+      "applicable_to": ["N", "NE", "E"],
+      "purpose": "Prosperity & positive energy flow",
+      "practical_tips": "Your main entrance ideally faces North or East. North brings wealth (Kubera's direction), East invites sunlight and health. If facing South or West, place a brass nameplate, hang a toran (door hanging), and keep the entrance well-lit to mitigate negative effects.",
+      "coco_labels": ["door"]
+    },
+    {
+      "id": "plot_shape",
+      "category": "Land & Entrance",
+      "element": "Plot / Floor Plan",
+      "ideal_direction": "N/A",
+      "applicable_to": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
+      "purpose": "Balanced energy — square/rectangular preferred",
+      "practical_tips": "Ideal plots are square or rectangular. L-shaped or irregular plots create energy imbalances. Use landscaping or boundary walls to 'complete' irregular shapes.",
+      "coco_labels": []
+    },
+    {
+      "id": "staircase",
+      "category": "Land & Entrance",
+      "element": "Staircase",
+      "ideal_direction": "South / West",
+      "applicable_to": ["S", "SW", "W"],
+      "purpose": "Stability, avoids blocking positive energy",
+      "practical_tips": "Staircases should be in the South, Southwest, or West. They should turn clockwise when ascending. Avoid placing a staircase in the Northeast — it blocks positive energy flow. If unavoidable, place a Vastu pyramid under the staircase.",
+      "coco_labels": []
+    },
+    {
+      "id": "water_source",
+      "category": "Land & Entrance",
+      "element": "Water Source / Tank",
+      "ideal_direction": "North / East / North-East",
+      "applicable_to": ["N", "NE", "E"],
+      "purpose": "Prosperity & positive water element flow",
+      "practical_tips": "Bore wells, water tanks (underground), and water features should be in the Northeast. Overhead water tanks should be in the Southwest for structural balance. Ensure no leaking taps — they signify financial drain.",
+      "coco_labels": []
+    },
+    {
+      "id": "compound_wall",
+      "category": "Land & Entrance",
+      "element": "Compound Wall / Fence",
+      "ideal_direction": "South / West (taller)",
+      "applicable_to": ["S", "SW", "W"],
+      "purpose": "Protection & energy containment",
+      "practical_tips": "South and West walls should be taller and thicker than North and East walls. This blocks negative energy from the South while allowing positive energy from the North/East.",
+      "coco_labels": []
+    },
+    {
+      "id": "living_room",
+      "category": "Residential",
+      "element": "Living Room",
+      "ideal_direction": "North / East / North-East",
+      "applicable_to": ["N", "NE", "E"],
+      "purpose": "Harmony, social energy, light",
+      "practical_tips": "Place the living room in the North, East, or Northeast zone. Furniture should be arranged so the host faces East or North. Keep the center (Brahmasthan) clutter-free. Use light, warm colors. A mirror on the North wall doubles prosperity energy.",
+      "coco_labels": ["couch", "chair", "tv"]
+    },
+    {
+      "id": "bedroom_master",
+      "category": "Residential",
+      "element": "Master Bedroom",
+      "ideal_direction": "South-West",
+      "applicable_to": ["SW", "S", "W"],
+      "purpose": "Stability, authority, restful sleep",
+      "practical_tips": "The master bedroom should be in the Southwest corner — it gives the household head strength and dominance. Sleep with your head pointing South or West, never North (opposing Earth's magnetic field causes restless sleep). Avoid mirrors facing the bed.",
+      "coco_labels": ["bed"]
+    },
+    {
+      "id": "bedroom_children",
+      "category": "Residential",
+      "element": "Children's Bedroom",
+      "ideal_direction": "West / North-West",
+      "applicable_to": ["W", "NW", "N"],
+      "purpose": "Growth, creativity, focus",
+      "practical_tips": "Children's bedrooms work best in the West or Northwest. The study desk should face East or North. Avoid heavy furniture; keep the room bright and airy. Use green or light blue colors to promote creativity and calm.",
+      "coco_labels": ["bed"]
+    },
+    {
+      "id": "guest_room",
+      "category": "Residential",
+      "element": "Guest Room",
+      "ideal_direction": "North-West",
+      "applicable_to": ["NW", "W"],
+      "purpose": "Temporary stay, movement energy",
+      "practical_tips": "Northwest is ideal for guest rooms — the Vayu (Wind) element here promotes short, pleasant stays. Avoid placing guest rooms in the Southwest, as guests may overstay.",
+      "coco_labels": ["bed"]
+    },
+    {
+      "id": "kitchen",
+      "category": "Residential",
+      "element": "Kitchen / Stove",
+      "ideal_direction": "South-East",
+      "applicable_to": ["SE"],
+      "purpose": "Fire element alignment, health & nourishment",
+      "practical_tips": "The kitchen belongs in the Southeast (Agni/Fire corner). Cook facing East for health. The stove should not be directly opposite or adjacent to the sink (fire vs water clash). Keep the gas/stove away from the wall — leave a small gap. Use yellow or orange decor.",
+      "coco_labels": ["oven", "microwave", "toaster"]
+    },
+    {
+      "id": "refrigerator",
+      "category": "Residential",
+      "element": "Refrigerator",
+      "ideal_direction": "South-West / South / West",
+      "applicable_to": ["SW", "S", "W"],
+      "purpose": "Storage stability, food preservation",
+      "practical_tips": "Place the refrigerator in the Southwest, South, or West direction of the kitchen. Avoid placing it in the Northeast corner. Keep it a few inches away from the wall for ventilation and energy flow.",
+      "coco_labels": ["refrigerator"]
+    },
+    {
+      "id": "dining",
+      "category": "Residential",
+      "element": "Dining Room / Table",
+      "ideal_direction": "West / East",
+      "applicable_to": ["W", "E", "NW"],
+      "purpose": "Nourishment, family bonding",
+      "practical_tips": "The dining area should be in the West or adjacent to the kitchen. A rectangular or square dining table is preferred over round. The head of the family should face East while eating. Place a mirror reflecting the dining table to symbolize abundance.",
+      "coco_labels": ["dining table"]
+    },
+    {
+      "id": "bathroom",
+      "category": "Residential",
+      "element": "Bathroom / Toilet",
+      "ideal_direction": "North-West / West",
+      "applicable_to": ["NW", "W"],
+      "purpose": "Waste channel, drain negative energy",
+      "practical_tips": "Bathrooms are best in the Northwest or West. Never in the Northeast (blocks prosperity) or center of the house. Keep the toilet lid down when not in use. The toilet seat should ideally face North-South axis. Ensure proper ventilation.",
+      "coco_labels": ["toilet", "sink"]
+    },
+    {
+      "id": "pooja_room",
+      "category": "Residential",
+      "element": "Pooja / Prayer Room",
+      "ideal_direction": "North-East",
+      "applicable_to": ["NE"],
+      "purpose": "Spiritual energy, divine connection",
+      "practical_tips": "The prayer room should be in the Northeast corner (Ishan corner — the most sacred zone). Face East or North while praying. The idol/image should not face South. Keep the pooja room clean, clutter-free, and well-lit. Do not place it under a staircase or above a toilet.",
+      "coco_labels": []
+    },
+    {
+      "id": "study_room",
+      "category": "Residential",
+      "element": "Study / Home Office",
+      "ideal_direction": "North / East / North-East",
+      "applicable_to": ["N", "NE", "E"],
+      "purpose": "Concentration, knowledge, career growth",
+      "practical_tips": "Study rooms should be in the North, East, or Northeast. Sit facing East or North while studying or working. Place bookshelves in the South or West. Avoid sitting with your back to the door. Use green or light yellow colors for focus.",
+      "coco_labels": ["laptop", "keyboard", "mouse", "book"]
+    },
+    {
+      "id": "tv_placement",
+      "category": "Common Elements",
+      "element": "Television / Electronics",
+      "ideal_direction": "South-East",
+      "applicable_to": ["SE", "S"],
+      "purpose": "Fire element alignment for electronics",
+      "practical_tips": "TVs and heavy electronics should be in the Southeast of the room. Avoid placing them in the Northeast. Wall-mount the TV on the South or East wall for optimal viewing angles aligned with Vastu.",
+      "coco_labels": ["tv"]
+    },
+    {
+      "id": "sofa_seating",
+      "category": "Common Elements",
+      "element": "Sofa / Seating",
+      "ideal_direction": "South / West",
+      "applicable_to": ["S", "SW", "W"],
+      "purpose": "Grounding, stability in social areas",
+      "practical_tips": "Heavy furniture like sofas should be along the South or West walls. This grounds the energy. The primary seating position should face East or North. Avoid placing furniture in the center of the room — keep the center open.",
+      "coco_labels": ["couch", "chair"]
+    },
+    {
+      "id": "mirror",
+      "category": "Common Elements",
+      "element": "Mirror",
+      "ideal_direction": "North / East",
+      "applicable_to": ["N", "NE", "E"],
+      "purpose": "Amplifies positive energy, light",
+      "practical_tips": "Place mirrors on North or East walls to reflect positive energy. Never place a mirror opposite the main entrance (deflects incoming energy) or facing the bed (causes restlessness). Use mirrors to visually 'extend' rooms and attract light.",
+      "coco_labels": []
+    },
+    {
+      "id": "clock",
+      "category": "Common Elements",
+      "element": "Clock",
+      "ideal_direction": "North / East / West",
+      "applicable_to": ["N", "E", "W"],
+      "purpose": "Positive time energy, punctuality",
+      "practical_tips": "Clocks should be on the North, East, or West walls. Avoid South-facing clocks. Ensure all clocks are working — stopped clocks signify stagnant energy. Prefer round or oval shapes for wall clocks.",
+      "coco_labels": ["clock"]
+    },
+    {
+      "id": "plants_indoor",
+      "category": "Common Elements",
+      "element": "Indoor Plants",
+      "ideal_direction": "East / North",
+      "applicable_to": ["E", "N", "NE"],
+      "purpose": "Fresh energy, air purification, prosperity",
+      "practical_tips": "Place indoor plants in the East or North. Money plants in the Southeast attract wealth. Tulsi (Holy Basil) in the Northeast is highly auspicious. Avoid cactus or thorny plants indoors — they create negative energy. Remove dead or dying plants immediately.",
+      "coco_labels": ["potted plant", "vase"]
+    },
+    {
+      "id": "safe_vault",
+      "category": "Industrial/Commercial",
+      "element": "Safe / Money Vault",
+      "ideal_direction": "South / South-West",
+      "applicable_to": ["S", "SW"],
+      "purpose": "Wealth retention, financial stability",
+      "practical_tips": "Place safes and vaults in the South or Southwest of the room. The safe door should open towards the North (direction of Kubera, the god of wealth). Never place the safe in the Northeast. Keep the safe heavy and grounded.",
+      "coco_labels": []
+    },
+    {
+      "id": "office_desk",
+      "category": "Industrial/Commercial",
+      "element": "Office Desk / Workstation",
+      "ideal_direction": "South-West / South / West",
+      "applicable_to": ["SW", "S", "W"],
+      "purpose": "Authority, decision-making, focus",
+      "practical_tips": "The business owner/manager should sit in the Southwest facing North or East. Employees should sit facing North or East for productivity. Avoid sitting under beams. Keep the desk clutter-free, especially the right side.",
+      "coco_labels": ["laptop", "keyboard", "mouse"]
+    },
+    {
+      "id": "reception",
+      "category": "Industrial/Commercial",
+      "element": "Reception / Front Desk",
+      "ideal_direction": "North-East / East",
+      "applicable_to": ["NE", "E", "N"],
+      "purpose": "Welcoming energy, first impressions",
+      "practical_tips": "Reception areas should face the entrance and be in the Northeast or East. The receptionist should face North or East. Use bright lighting and fresh flowers. A water feature near reception enhances positive energy flow.",
+      "coco_labels": []
+    },
+    {
+      "id": "washing_machine",
+      "category": "Household Items",
+      "element": "Washing Machine",
+      "ideal_direction": "South-East / North-West",
+      "applicable_to": ["SE", "NW"],
+      "purpose": "Water-fire balance, cleanliness",
+      "practical_tips": "Washing machines work well in the Southeast (fire element runs the motor) or Northwest (wind element aids drying). Avoid placing them in the Northeast. Ensure drainage flows towards North or East.",
+      "coco_labels": []
+    },
+    {
+      "id": "air_conditioner",
+      "category": "Household Items",
+      "element": "Air Conditioner / Fan",
+      "ideal_direction": "West / North-West",
+      "applicable_to": ["W", "NW"],
+      "purpose": "Air element alignment, comfort",
+      "practical_tips": "Install ACs in the West or Northwest zone (Vayu/Wind direction). Avoid placing the outdoor unit in the Northeast. The airflow should not blow directly onto sleeping or working positions.",
+      "coco_labels": []
+    },
+    {
+      "id": "gas_stove",
+      "category": "Household Items",
+      "element": "Gas Stove / Cooking Range",
+      "ideal_direction": "South-East",
+      "applicable_to": ["SE"],
+      "purpose": "Agni (Fire) element, nourishment",
+      "practical_tips": "The gas stove must be in the Southeast corner of the kitchen. Cook facing East. The stove should never be placed directly in front of the kitchen entrance. Keep a gap between the stove and the wall. Red, orange, or pink colors nearby enhance fire energy.",
+      "coco_labels": ["oven"]
+    },
+    {
+      "id": "water_purifier",
+      "category": "Household Items",
+      "element": "Water Purifier / Dispenser",
+      "ideal_direction": "North-East / North",
+      "applicable_to": ["NE", "N"],
+      "purpose": "Pure water element, health",
+      "practical_tips": "Water purifiers and dispensers should be in the Northeast or North zone. These align with the water element (Jal). Avoid placing water elements in the Southeast (clashes with fire).",
+      "coco_labels": []
+    },
+    {
+      "id": "shoe_rack",
+      "category": "Household Items",
+      "element": "Shoe Rack",
+      "ideal_direction": "West / South-West",
+      "applicable_to": ["W", "SW"],
+      "purpose": "Containment of negative energy",
+      "practical_tips": "Place shoe racks in the West or Southwest near the entrance, but not blocking it. Shoes carry outside energy — keep them organized and enclosed. Never place shoes in the Northeast or near the prayer room.",
+      "coco_labels": []
+    },
+    {
+      "id": "bed_head_direction",
+      "category": "Directional",
+      "element": "Sleeping Head Direction",
+      "ideal_direction": "South / West",
+      "applicable_to": ["S", "SW", "W"],
+      "purpose": "Alignment with Earth's magnetic field",
+      "practical_tips": "Sleep with your head pointing South for the most restful sleep (aligned with Earth's magnetic poles). West is second best. NEVER sleep with head pointing North — it opposes the body's electromagnetic field and may cause headaches and restless sleep. East is acceptable for students seeking knowledge.",
+      "coco_labels": ["bed"]
+    },
+    {
+      "id": "swimming_pool",
+      "category": "Exterior",
+      "element": "Swimming Pool / Water Feature",
+      "ideal_direction": "North-East / North",
+      "applicable_to": ["NE", "N", "E"],
+      "purpose": "Water element, prosperity, cooling energy",
+      "practical_tips": "Swimming pools and water features should be in the Northeast, North, or East. Water in the Southwest causes financial instability. Ensure the water is always clean and flowing — stagnant water creates negative energy.",
+      "coco_labels": []
+    },
+    {
+      "id": "garden",
+      "category": "Exterior",
+      "element": "Garden / Lawn",
+      "ideal_direction": "North / East",
+      "applicable_to": ["N", "NE", "E"],
+      "purpose": "Growth, fresh energy, nature connection",
+      "practical_tips": "Gardens are best in the North and East, where they receive morning sunlight. Plant tall trees in the South and West (act as energy shields). Fruit-bearing trees attract positive energy. Avoid Peepal and Banyan trees too close to the house.",
+      "coco_labels": []
+    },
+    {
+      "id": "garage",
+      "category": "Exterior",
+      "element": "Garage / Parking",
+      "ideal_direction": "South-East / North-West",
+      "applicable_to": ["SE", "NW"],
+      "purpose": "Vehicle energy, movement",
+      "practical_tips": "Garages work well in the Southeast or Northwest. The vehicle should face East or North when parked. Avoid building a garage in the Northeast — it blocks beneficial energy from entering the premises.",
+      "coco_labels": ["car", "truck", "motorcycle", "bicycle"]
+    },
+    {
+      "id": "overhead_tank",
+      "category": "Exterior",
+      "element": "Overhead Water Tank",
+      "ideal_direction": "South-West / West",
+      "applicable_to": ["SW", "W"],
+      "purpose": "Structural balance, weight distribution",
+      "practical_tips": "Overhead tanks should be in the Southwest or West at the highest point. This adds weight to the heavy zone (southwest) which stabilizes the structure energetically. Never place overhead tanks in the Northeast.",
+      "coco_labels": []
+    },
+    {
+      "id": "dustbin",
+      "category": "Household Items",
+      "element": "Dustbin / Waste",
+      "ideal_direction": "South / South-West / West",
+      "applicable_to": ["S", "SW", "W"],
+      "purpose": "Waste containment, negative energy management",
+      "practical_tips": "Keep dustbins in the South, Southwest, or West zones. Never in the Northeast or near the entrance. Use covered dustbins to prevent negative energy from spreading. Empty them regularly.",
+      "coco_labels": []
+    },
+    {
+      "id": "temple_altar",
+      "category": "Residential",
+      "element": "Home Temple / Altar",
+      "ideal_direction": "North-East",
+      "applicable_to": ["NE", "E", "N"],
+      "purpose": "Spiritual connection, divine energy",
+      "practical_tips": "The home temple should be in the Northeast, facing East or West. Light a lamp daily. The deity should face West (so you face East while praying). Avoid placing the temple on the floor — use a raised platform. Keep it at chest height for standing worship.",
+      "coco_labels": []
+    },
+    {
+      "id": "bookshelf",
+      "category": "Common Elements",
+      "element": "Bookshelf / Library",
+      "ideal_direction": "South / West",
+      "applicable_to": ["S", "SW", "W"],
+      "purpose": "Knowledge storage, grounding energy",
+      "practical_tips": "Place bookshelves along the South or West walls. Avoid the Northeast (heaviness blocks spiritual energy). Organize books neatly — cluttered books create stagnant energy. Display positive, uplifting book covers outward.",
+      "coco_labels": ["book"]
+    },
+    {
+      "id": "sink_kitchen",
+      "category": "Residential",
+      "element": "Kitchen Sink",
+      "ideal_direction": "North-East / North",
+      "applicable_to": ["NE", "N"],
+      "purpose": "Water element alignment in kitchen",
+      "practical_tips": "The kitchen sink (water element) should be in the North or Northeast of the kitchen — diagonally opposite to the stove (SE fire element). This balances fire and water energies. If sink and stove are on the same platform, keep them at least 2 feet apart.",
+      "coco_labels": ["sink"]
+    },
+    {
+      "id": "bed_position",
+      "category": "Residential",
+      "element": "Bed Placement",
+      "ideal_direction": "South-West",
+      "applicable_to": ["SW", "S", "W"],
+      "purpose": "Stability, deep sleep, strength",
+      "practical_tips": "Place the bed in the Southwest corner of the bedroom with head pointing South. Leave space on the North and East sides. Do not place the bed directly under a beam. The bed should have a solid headboard for support energy. Use wooden beds — metal frames can amplify electromagnetic interference.",
+      "coco_labels": ["bed"]
+    },
+    {
+      "id": "computer_electronics",
+      "category": "Common Elements",
+      "element": "Computer / Electronics Setup",
+      "ideal_direction": "South-East / South",
+      "applicable_to": ["SE", "S"],
+      "purpose": "Fire element alignment for electronic energy",
+      "practical_tips": "Computers and electronics should be placed in the South or Southeast zone. WiFi routers in Southeast. Keep electronics away from the Northeast — electromagnetic pollution disrupts spiritual energy in this sacred zone.",
+      "coco_labels": ["laptop", "keyboard", "mouse", "cell phone", "remote"]
+    },
+    {
+      "id": "wardrobe",
+      "category": "Household Items",
+      "element": "Wardrobe / Cupboard",
+      "ideal_direction": "South / West / South-West",
+      "applicable_to": ["S", "SW", "W"],
+      "purpose": "Weight distribution, storage",
+      "practical_tips": "Heavy wardrobes and Almirahs belong in the South or West of bedrooms. This adds 'weight' to the directions that should be heavier in Vastu. Door should open to the East or North. Leave the Northeast light and airy.",
+      "coco_labels": []
+    },
+    {
+      "id": "main_gate",
+      "category": "Land & Entrance",
+      "element": "Main Gate",
+      "ideal_direction": "North / East / North-East",
+      "applicable_to": ["N", "NE", "E"],
+      "purpose": "Entry of positive energy and prosperity",
+      "practical_tips": "The main gate should align with the main door. North-facing gates bring wealth, East-facing gates bring fame and health. Two-leaved doors that open inward are ideal. Ensure the gate is well-maintained — broken or squeaky gates deflect prosperity.",
+      "coco_labels": ["door"]
+    }
+  ],
+
+  "direction_ranges": {
+    "N":  { "min": 337.5, "max": 22.5,  "label": "North",      "element": "Water",  "deity": "Kubera" },
+    "NE": { "min": 22.5,  "max": 67.5,  "label": "North-East", "element": "Water",  "deity": "Ishan/Shiva" },
+    "E":  { "min": 67.5,  "max": 112.5, "label": "East",       "element": "Air",    "deity": "Indra" },
+    "SE": { "min": 112.5, "max": 157.5, "label": "South-East", "element": "Fire",   "deity": "Agni" },
+    "S":  { "min": 157.5, "max": 202.5, "label": "South",      "element": "Fire",   "deity": "Yama" },
+    "SW": { "min": 202.5, "max": 247.5, "label": "South-West", "element": "Earth",  "deity": "Nairuti" },
+    "W":  { "min": 247.5, "max": 292.5, "label": "West",       "element": "Space",  "deity": "Varuna" },
+    "NW": { "min": 292.5, "max": 337.5, "label": "North-West", "element": "Air",    "deity": "Vayu" }
+  },
+
+  "coco_to_vastu_mapping": {
+    "door": ["main_entrance", "main_gate"],
+    "bed": ["bed_position", "bedroom_master", "bed_head_direction"],
+    "couch": ["sofa_seating", "living_room"],
+    "chair": ["sofa_seating", "living_room"],
+    "tv": ["tv_placement", "living_room"],
+    "oven": ["kitchen", "gas_stove"],
+    "microwave": ["kitchen"],
+    "toaster": ["kitchen"],
+    "refrigerator": ["refrigerator"],
+    "dining table": ["dining"],
+    "toilet": ["bathroom"],
+    "sink": ["sink_kitchen", "bathroom"],
+    "laptop": ["study_room", "computer_electronics"],
+    "keyboard": ["study_room", "computer_electronics"],
+    "mouse": ["study_room", "computer_electronics"],
+    "book": ["study_room", "bookshelf"],
+    "clock": ["clock"],
+    "potted plant": ["plants_indoor"],
+    "vase": ["plants_indoor"],
+    "car": ["garage"],
+    "truck": ["garage"],
+    "motorcycle": ["garage"],
+    "bicycle": ["garage"],
+    "cell phone": ["computer_electronics"],
+    "remote": ["computer_electronics"]
+  }
+}
