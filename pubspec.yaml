@@ -34,7 +34,7 @@ dependencies:
   
   # Icons
   cupertino_icons: ^1.0.8
-  google_mlkit_image_labeling: ^0.14.1
+  google_mlkit_object_detection: 0.12.1
 
 dev_dependencies:
   flutter_test:

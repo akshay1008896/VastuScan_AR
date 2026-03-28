@@ -66,4 +66,6 @@ jdk17.zip
 
 # Logs and debug files
 analyze_output.txt
-build_log*.txt
+build_output*.txt
+flutter_doctor.txt
+*.apk

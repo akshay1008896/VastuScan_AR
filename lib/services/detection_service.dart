@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:vastuscan_ar/models/detected_object.dart';
-import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
+import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart' as ml;
 
 /// Service that handles object detection using Google ML Kit.
 ///
@@ -21,10 +20,6 @@ class DetectionService extends ChangeNotifier {
   bool _isModelLoaded = false;
   bool get isModelLoaded => _isModelLoaded;
 
-  /// Diagnostic: last raw label count from ML Kit
-  int _lastRawLabelCount = 0;
-  int get lastRawLabelCount => _lastRawLabelCount;
-
   /// Diagnostic: total frames processed
   int _framesProcessed = 0;
   int get framesProcessed => _framesProcessed;
@@ -33,77 +28,79 @@ class DetectionService extends ChangeNotifier {
   String _lastError = '';
   String get lastError => _lastError;
 
-  late ImageLabeler _labeler;
+  late ml.ObjectDetector _detector;
 
-  /// Initialize the ML Kit Image Labeler with lowest possible threshold
+  /// Initialize the ML Kit Object Detector for real-time streaming
   Future<void> initialize({bool forceDemoMode = false}) async {
-    final options = ImageLabelerOptions(confidenceThreshold: 0.15); // Ultra-low threshold
-    _labeler = ImageLabeler(options: options);
+    // Configure for multiple object detection in stream mode
+    final options = ml.ObjectDetectorOptions(
+      mode: ml.DetectionMode.stream,
+      classifyObjects: true,
+      multipleObjects: true,
+    );
+    
+    _detector = ml.ObjectDetector(options: options);
     _isDemoMode = false;
     _isModelLoaded = true;
-    debugPrint('AR_DETECT: ML Engine Initialized — threshold: 0.15');
+    debugPrint('AR_DETECT: ML Object Detector Initialized (Multiple/Stream)');
     notifyListeners();
   }
 
   /// Process an input image directly from the camera stream.
-  /// Reports ALL detected labels, not just the top one.
-  Future<void> processInputImage(InputImage inputImage) async {
+  Future<void> processInputImage(ml.InputImage inputImage) async {
     if (_isProcessing) return;
     _isProcessing = true;
 
     try {
-      final labels = await _labeler.processImage(inputImage);
+      final objects = await _detector.processImage(inputImage);
       _framesProcessed++;
-      _lastRawLabelCount = labels.length;
+      _lastError = ''; // Clear previous error
 
       if (_framesProcessed % 30 == 0) {
-        debugPrint('AR_DETECT: Frame #$_framesProcessed — ${labels.length} labels detected');
+        debugPrint('AR_DETECT: Frame #$_framesProcessed — ${objects.length} objects detected');
       }
 
-      if (labels.isNotEmpty) {
-        // Log ALL labels for diagnostics
-        for (var label in labels.take(5)) {
-          debugPrint('AR_DETECT: Label: "${label.label}" confidence: ${label.confidence.toStringAsFixed(3)}');
-        }
-
-        // Build a DetectedObject for EVERY label above threshold
-        // Distribute bounding boxes across the screen so they don't all stack
+      if (objects.isNotEmpty) {
         final List<DetectedObject> allObjects = [];
-        final count = labels.length;
+        
+        // Image dimensions needed for coordinate normalization
+        final double imgWidth = inputImage.metadata?.size.width ?? 720;
+        final double imgHeight = inputImage.metadata?.size.height ?? 1280;
 
-        for (int i = 0; i < count && i < 8; i++) {
-          final label = labels[i];
+        for (int i = 0; i < objects.length; i++) {
+          final obj = objects[i];
+          final rect = obj.boundingBox;
+          
+          // Use the best label available
+          String labelText = 'object';
+          double confidence = 0.5;
+          if (obj.labels.isNotEmpty) {
+            labelText = obj.labels.first.text.toLowerCase();
+            confidence = obj.labels.first.confidence;
+          }
 
-          // Spread bounding boxes in a grid pattern across the screen
-          final col = i % 2;
-          final row = i ~/ 2;
-          final boxW = 0.42;
-          final boxH = 0.18;
-          final left = 0.05 + col * 0.48;
-          final top = 0.15 + row * 0.20;
-
+          // Normalize coordinates (0.0 to 1.0)
           allObjects.add(DetectedObject(
-            label: label.label.toLowerCase(),
-            confidence: label.confidence,
+            label: labelText,
+            confidence: confidence,
             boundingBox: Rect.fromLTWH(
-              left.clamp(0.0, 0.95 - boxW),
-              top.clamp(0.0, 0.95 - boxH),
-              boxW,
-              boxH,
+              rect.left / imgWidth,
+              rect.top / imgHeight,
+              rect.width / imgWidth,
+              rect.height / imgHeight,
             ),
-            trackingId: i,
+            trackingId: obj.trackingId ?? i,
             timestamp: DateTime.now(),
           ));
         }
 
         _detectedObjects = allObjects;
-        _lastError = '';
       } else {
         _detectedObjects = [];
       }
     } catch (e) {
-      debugPrint('AR_DETECT: ML Error: $e');
       _lastError = e.toString();
+      debugPrint('AR_CRITICAL_ERR: ML processing failed: $_lastError');
       _detectedObjects = [];
     } finally {
       _isProcessing = false;
@@ -125,7 +122,7 @@ class DetectionService extends ChangeNotifier {
 
   @override
   void dispose() {
-    _labeler.close();
+    _detector.close();
     stopDetection();
     super.dispose();
   }

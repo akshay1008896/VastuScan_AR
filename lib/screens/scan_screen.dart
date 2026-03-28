@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:vastuscan_ar/models/vastu_result.dart';
@@ -201,30 +202,42 @@ class _ScanScreenState extends State<ScanScreen>
     if (image.planes.isEmpty) return null;
 
     // === FORMAT HANDLING ===
-    // Try to get the format from the raw value
     InputImageFormat? format = InputImageFormatValue.fromRawValue(image.format.raw);
     
-    // On Android, the camera plugin may report different raw format codes.
-    // We accept NV21 (17) and YUV_420_888 (35) explicitly.
-    // If format is null but we're on Android, force NV21 since that's what we requested.
+    // Default to NV21 for Android if unknown
     if (Platform.isAndroid && format == null) {
       format = InputImageFormat.nv21;
-      debugPrint('AR_FRAME: Unknown raw format ${image.format.raw}, forcing NV21');
     }
     if (format == null) return null;
 
-    // === BYTE ASSEMBLY ===
-    // Concatenate all planes. For NV21, plane 0 = Y, plane 1 = VU interleaved.
-    // For YUV_420_888, plane 0 = Y, plane 1 = U, plane 2 = V.
-    final WriteBuffer allBytes = WriteBuffer();
-    for (final Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
+    // === BYTE ASSEMBLY (Robust for Android) ===
+    Uint8List bytes;
+    int bytesPerRow;
+
+    if (Platform.isAndroid) {
+      if (image.planes.length == 1 && (format == InputImageFormat.nv21 || format == InputImageFormat.yv12)) {
+        // Single plane: usually already packed NV21/YV12
+        bytes = image.planes[0].bytes;
+        bytesPerRow = image.planes[0].bytesPerRow;
+      } else {
+        // Multiple planes (YUV_420_888): Pack and interleave into a tight NV21 buffer
+        bytes = _yuv420ToNv21(image);
+        bytesPerRow = image.width; // We've stripped the padding
+        format = InputImageFormat.nv21;
+      }
+    } else {
+      // iOS / other: use standard concatenation for BGRA8888
+      final WriteBuffer allBytes = WriteBuffer();
+      for (final Plane plane in image.planes) {
+        allBytes.putUint8List(plane.bytes);
+      }
+      bytes = allBytes.done().buffer.asUint8List();
+      bytesPerRow = image.planes[0].bytesPerRow;
     }
-    final bytes = allBytes.done().buffer.asUint8List();
-    
-    // Periodic diagnostic logging
+
+    // Periodic diagnostics (one every 2 seconds roughly)
     if (_detectionService.framesProcessed % 60 == 0) {
-      debugPrint('AR_FRAME: Sending ${bytes.length} bytes, format=$format, size=${image.width}x${image.height}, planes=${image.planes.length}');
+      debugPrint('AR_V_SCAN: Frame size: ${image.width}x${image.height}, format: $format, bytes: ${bytes.length}');
     }
 
     return InputImage.fromBytes(
@@ -233,10 +246,58 @@ class _ScanScreenState extends State<ScanScreen>
         size: Size(image.width.toDouble(), image.height.toDouble()),
         rotation: rotation,
         format: format,
-        bytesPerRow: image.planes[0].bytesPerRow,
+        bytesPerRow: bytesPerRow,
       ),
     );
   }
+
+  /// Robustly packs YUV_420_888 planes into a single NV21 (Semi-Planar) byte array.
+  /// Strips row padding (rowStride > width) and interleaves VU chroma components.
+  Uint8List _yuv420ToNv21(CameraImage image) {
+    final width = image.width;
+    final height = image.height;
+    final yPlane = image.planes[0];
+    final uPlane = image.planes[1];
+    final vPlane = image.planes[2];
+
+    final Uint8List nv21 = Uint8List((width * height * 1.5).toInt());
+    
+    // 1. Pack Y plane (Luminance)
+    int idY = 0;
+    final yBuffer = yPlane.bytes;
+    final yRowStride = yPlane.bytesPerRow;
+    final yPixelStride = yPlane.bytesPerPixel ?? 1;
+
+    for (int y = 0; y < height; y++) {
+      final rowOffset = y * yRowStride;
+      for (int x = 0; x < width; x++) {
+        nv21[idY++] = yBuffer[rowOffset + x * yPixelStride];
+      }
+    }
+    
+    // 2. Interleave V and U planes (Chrominance VU interleaved)
+    int idUV = width * height;
+    final uvWidth = width ~/ 2;
+    final uvHeight = height ~/ 2;
+    
+    final uBuffer = uPlane.bytes;
+    final vBuffer = vPlane.bytes;
+    final uvRowStride = uPlane.bytesPerRow;
+    final uvPixelStride = uPlane.bytesPerPixel ?? 1;
+
+    for (int y = 0; y < uvHeight; y++) {
+      final rowOffset = y * uvRowStride;
+      for (int x = 0; x < uvWidth; x++) {
+        // NV21 is V-U interleaved
+        // We use the pixel stride to pick the correct byte from the planes
+        nv21[idUV++] = vBuffer[rowOffset + x * uvPixelStride];
+        nv21[idUV++] = uBuffer[rowOffset + x * uvPixelStride];
+      }
+    }
+    
+    return nv21;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -809,6 +870,9 @@ class _BoundingBoxPainter extends CustomPainter {
       final isCompliant = result.isCompliant;
       final color = isCompliant ? AppColors.compliant : AppColors.nonCompliant;
 
+      // Draw floating indicator arrow above the box
+      _drawArrowPointer(canvas, rect, color);
+
       // Glow fill
       final glowPaint = Paint()
         ..color = color.withOpacity(pulseValue * 0.08)
@@ -831,6 +895,32 @@ class _BoundingBoxPainter extends CustomPainter {
       // Corner brackets
       _drawCorners(canvas, rect, color);
     }
+  }
+
+  void _drawArrowPointer(Canvas canvas, Rect rect, Color color) {
+    final center = rect.centerLeft.dx + rect.width / 2;
+    final top = rect.top - 20 - (pulseValue * 10); // Pulse the arrow height
+    
+    final Path arrowPath = Path();
+    arrowPath.moveTo(center - 10, top - 15);
+    arrowPath.lineTo(center + 10, top - 15);
+    arrowPath.lineTo(center, top); // Tip of the arrow
+    arrowPath.close();
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Add a small shadow/glow to the arrow
+    canvas.drawShadow(arrowPath.shift(const Offset(0, 2)), Colors.black, 4, true);
+    canvas.drawPath(arrowPath, paint);
+
+    // Draw the "label" background directly above the arrow
+    final RRect labelRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: Offset(center, top - 25), width: 80, height: 20),
+      const Radius.circular(4),
+    );
+    canvas.drawRRect(labelRect, Paint()..color = color.withOpacity(0.9));
   }
 
   void _drawCorners(Canvas canvas, Rect rect, Color color) {

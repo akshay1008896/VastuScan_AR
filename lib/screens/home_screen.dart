@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:vastuscan_ar/theme/app_colors.dart';
 import 'package:vastuscan_ar/screens/scan_screen.dart';
 
@@ -277,21 +278,100 @@ class _HomeScreenState extends State<HomeScreen>
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const ScanScreen(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-              transitionDuration: const Duration(milliseconds: 500),
-            ),
-          );
+        onPressed: () async {
+          HapticFeedback.mediumImpact();
+
+          // Request camera and location permissions
+          final cameraStatus = await Permission.camera.request();
+          final locationStatus = await Permission.location.request();
+
+          if (!context.mounted) return;
+
+          if (cameraStatus.isGranted) {
+            // Camera granted — navigate even if location is denied (compass will use demo mode)
+            if (!locationStatus.isGranted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Location denied — compass will use demo mode'),
+                  duration: Duration(seconds: 2),
+                  backgroundColor: AppColors.saffronDark,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+            Navigator.of(context).push(
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const ScanScreen(),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                transitionDuration: const Duration(milliseconds: 500),
+              ),
+            );
+          } else if (cameraStatus.isPermanentlyDenied) {
+            // Show dialog to open settings
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: AppColors.cardSurface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: const Text(
+                  'Camera Permission Required',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                content: const Text(
+                  'VastuScan AR needs camera access to detect objects and analyze Vastu compliance. Please enable it in Settings.',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Cancel',
+                        style: TextStyle(color: AppColors.textMuted)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      openAppSettings();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.saffron,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Open Settings',
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            // Denied but not permanently — show snackbar
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Camera permission is required to scan objects'),
+                duration: Duration(seconds: 3),
+                backgroundColor: AppColors.nonCompliant,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.saffron,
