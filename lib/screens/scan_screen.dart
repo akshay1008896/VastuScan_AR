@@ -183,6 +183,7 @@ class _ScanScreenState extends State<ScanScreen>
     final camera = _cameraController!.description;
     final sensorOrientation = camera.sensorOrientation;
     
+    // === ROTATION ===
     InputImageRotation? rotation;
     if (Platform.isIOS) {
       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
@@ -190,27 +191,41 @@ class _ScanScreenState extends State<ScanScreen>
       var rotationCompensation = _orientations[_cameraController!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == CameraLensDirection.front) {
-        // front-facing
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
-        // back-facing
         rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
       }
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
     }
     if (rotation == null) return null;
-
-    final format = InputImageFormatValue.fromRawValue(image.format.raw);
-    if (format == null || (Platform.isAndroid && format != InputImageFormat.nv21 && format != InputImageFormat.yuv_420_888)) return null;
-
     if (image.planes.isEmpty) return null;
 
-    // Concatenate planes for NV21/YUV420
+    // === FORMAT HANDLING ===
+    // Try to get the format from the raw value
+    InputImageFormat? format = InputImageFormatValue.fromRawValue(image.format.raw);
+    
+    // On Android, the camera plugin may report different raw format codes.
+    // We accept NV21 (17) and YUV_420_888 (35) explicitly.
+    // If format is null but we're on Android, force NV21 since that's what we requested.
+    if (Platform.isAndroid && format == null) {
+      format = InputImageFormat.nv21;
+      debugPrint('AR_FRAME: Unknown raw format ${image.format.raw}, forcing NV21');
+    }
+    if (format == null) return null;
+
+    // === BYTE ASSEMBLY ===
+    // Concatenate all planes. For NV21, plane 0 = Y, plane 1 = VU interleaved.
+    // For YUV_420_888, plane 0 = Y, plane 1 = U, plane 2 = V.
     final WriteBuffer allBytes = WriteBuffer();
     for (final Plane plane in image.planes) {
       allBytes.putUint8List(plane.bytes);
     }
     final bytes = allBytes.done().buffer.asUint8List();
+    
+    // Periodic diagnostic logging
+    if (_detectionService.framesProcessed % 60 == 0) {
+      debugPrint('AR_FRAME: Sending ${bytes.length} bytes, format=$format, size=${image.width}x${image.height}, planes=${image.planes.length}');
+    }
 
     return InputImage.fromBytes(
       bytes: bytes,
@@ -298,15 +313,35 @@ class _ScanScreenState extends State<ScanScreen>
       builder: (context, _) {
         final objects = _detectionService.detectedObjects;
         final isProcessing = _detectionService.isProcessing;
+        final frameCount = _detectionService.framesProcessed;
+        final lastError = _detectionService.lastError;
+
+        // Build a summary of ALL detected objects
+        String statusText;
+        Color dotColor;
+        if (objects.isNotEmpty) {
+          final names = objects.map((o) => o.label.toUpperCase()).take(4).join(', ');
+          final extra = objects.length > 4 ? ' +${objects.length - 4} more' : '';
+          statusText = '🎯 ${objects.length} found: $names$extra';
+          dotColor = Colors.green;
+        } else if (lastError.isNotEmpty) {
+          statusText = '⚠️ Error: ${lastError.substring(0, min(40, lastError.length))}';
+          dotColor = Colors.red;
+        } else {
+          statusText = '🔍 Scanning... (frame #$frameCount)';
+          dotColor = AppColors.saffron;
+        }
 
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          margin: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.6),
+            color: Colors.black.withOpacity(0.7),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.saffron.withOpacity(0.3),
+              color: objects.isNotEmpty
+                  ? Colors.green.withOpacity(0.5)
+                  : AppColors.saffron.withOpacity(0.3),
               width: 1,
             ),
           ),
@@ -317,21 +352,30 @@ class _ScanScreenState extends State<ScanScreen>
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: isProcessing ? AppColors.saffron : Colors.green,
+                  color: dotColor,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: dotColor.withOpacity(0.6),
+                      blurRadius: 6,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
-                objects.isEmpty
-                    ? 'AI Status: Searching...'
-                    : 'AI Sees: ${objects.first.label.toUpperCase()} (${(objects.first.confidence * 100).toStringAsFixed(0)}%)',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
+              Flexible(
+                child: Text(
+                  statusText,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: 0.3,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
             ],

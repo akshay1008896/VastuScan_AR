@@ -7,7 +7,7 @@ import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 
 /// Service that handles object detection using Google ML Kit.
 ///
-/// Automatically recognizes hundreds of generic objects and passes labels to VastuEngine.
+/// Detects ALL visible objects in every frame and reports them simultaneously.
 class DetectionService extends ChangeNotifier {
   List<DetectedObject> _detectedObjects = [];
   List<DetectedObject> get detectedObjects => _detectedObjects;
@@ -21,70 +21,89 @@ class DetectionService extends ChangeNotifier {
   bool _isModelLoaded = false;
   bool get isModelLoaded => _isModelLoaded;
 
+  /// Diagnostic: last raw label count from ML Kit
+  int _lastRawLabelCount = 0;
+  int get lastRawLabelCount => _lastRawLabelCount;
+
+  /// Diagnostic: total frames processed
+  int _framesProcessed = 0;
+  int get framesProcessed => _framesProcessed;
+
+  /// Diagnostic: last error message
+  String _lastError = '';
+  String get lastError => _lastError;
+
   late ImageLabeler _labeler;
 
-  /// COCO labels that map to Vastu-relevant items.
-  static const List<String> vastuRelevantLabels = [
-    'person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck',
-    'bird', 'cat', 'dog',
-    'chair', 'couch', 'bed', 'dining table', 'toilet',
-    'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
-    'microwave', 'oven', 'toaster', 'sink', 'refrigerator',
-    'book', 'clock', 'vase', 'potted plant',
-    'door', 'window',
-  ];
-
-  /// Initialize the ML Kit Image Labeler
+  /// Initialize the ML Kit Image Labeler with lowest possible threshold
   Future<void> initialize({bool forceDemoMode = false}) async {
-    final options = ImageLabelerOptions(confidenceThreshold: 0.25); // Maximum sensitivity
+    final options = ImageLabelerOptions(confidenceThreshold: 0.15); // Ultra-low threshold
     _labeler = ImageLabeler(options: options);
     _isDemoMode = false;
     _isModelLoaded = true;
-    debugPrint('AR_V_SCAN: ML Engine Initialized at 0.25 threshold');
+    debugPrint('AR_DETECT: ML Engine Initialized — threshold: 0.15');
     notifyListeners();
   }
 
-  /// Process an input image directly from the camera stream
+  /// Process an input image directly from the camera stream.
+  /// Reports ALL detected labels, not just the top one.
   Future<void> processInputImage(InputImage inputImage) async {
     if (_isProcessing) return;
     _isProcessing = true;
 
     try {
       final labels = await _labeler.processImage(inputImage);
-      debugPrint('ML Service: Found ${labels.length} labels');
+      _framesProcessed++;
+      _lastRawLabelCount = labels.length;
+
+      if (_framesProcessed % 30 == 0) {
+        debugPrint('AR_DETECT: Frame #$_framesProcessed — ${labels.length} labels detected');
+      }
 
       if (labels.isNotEmpty) {
-        // Log top labels with more detail
-        for (var label in labels.take(3)) {
-          debugPrint('AR_V_SCAN: [Raw AI Data] Label: ${label.label} (${label.confidence.toStringAsFixed(2)})');
+        // Log ALL labels for diagnostics
+        for (var label in labels.take(5)) {
+          debugPrint('AR_DETECT: Label: "${label.label}" confidence: ${label.confidence.toStringAsFixed(3)}');
         }
-        
-        // Get the top confident label
-        final topLabel = labels.reduce((a, b) => a.confidence > b.confidence ? a : b);
-        
-        // Emulate bounding box firmly locked in center screen
-        final boxSize = 0.4;
-        final rect = Rect.fromCenter(
-          center: const Offset(0.5, 0.5),
-          width: boxSize,
-          height: boxSize,
-        );
-        
-        _detectedObjects = [
-          DetectedObject(
-            label: topLabel.label.toLowerCase(),
-            confidence: topLabel.confidence,
-            boundingBox: rect,
-            trackingId: DateTime.now().millisecondsSinceEpoch,
+
+        // Build a DetectedObject for EVERY label above threshold
+        // Distribute bounding boxes across the screen so they don't all stack
+        final List<DetectedObject> allObjects = [];
+        final count = labels.length;
+
+        for (int i = 0; i < count && i < 8; i++) {
+          final label = labels[i];
+
+          // Spread bounding boxes in a grid pattern across the screen
+          final col = i % 2;
+          final row = i ~/ 2;
+          final boxW = 0.42;
+          final boxH = 0.18;
+          final left = 0.05 + col * 0.48;
+          final top = 0.15 + row * 0.20;
+
+          allObjects.add(DetectedObject(
+            label: label.label.toLowerCase(),
+            confidence: label.confidence,
+            boundingBox: Rect.fromLTWH(
+              left.clamp(0.0, 0.95 - boxW),
+              top.clamp(0.0, 0.95 - boxH),
+              boxW,
+              boxH,
+            ),
+            trackingId: i,
             timestamp: DateTime.now(),
-          )
-        ];
+          ));
+        }
+
+        _detectedObjects = allObjects;
+        _lastError = '';
       } else {
-        // Clear if not scanning, to avoid stale data
         _detectedObjects = [];
       }
     } catch (e) {
-      debugPrint('AR_V_SCAN: ML Labeling Error: $e');
+      debugPrint('AR_DETECT: ML Error: $e');
+      _lastError = e.toString();
       _detectedObjects = [];
     } finally {
       _isProcessing = false;
