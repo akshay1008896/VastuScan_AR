@@ -180,7 +180,7 @@
       "applicable_to": ["N", "NE", "E"],
       "purpose": "Amplifies positive energy, light",
       "practical_tips": "Place mirrors on North or East walls to reflect positive energy. Never place a mirror opposite the main entrance (deflects incoming energy) or facing the bed (causes restlessness). Use mirrors to visually 'extend' rooms and attract light.",
-      "coco_labels": []
+      "coco_labels": ["mirror", "glass"]
     },
     {
       "id": "clock",
@@ -450,6 +450,11 @@
     "motorcycle": ["garage"],
     "bicycle": ["garage"],
     "cell phone": ["computer_electronics"],
-    "remote": ["computer_electronics"]
+    "remote": ["computer_electronics"],
+    "sofa": ["sofa_seating", "living_room"],
+    "arm chair": ["sofa_seating", "living_room"],
+    "window": ["living_room"],
+    "painting": ["living_room", "mirror"],
+    "mirror": ["mirror"]
   }
 }
