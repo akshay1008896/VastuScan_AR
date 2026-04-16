@@ -109,7 +109,7 @@ class VastuEngine extends ChangeNotifier {
           ? '${rule.element} is correctly placed in the $currentLabel direction.'
           : '${rule.element} should ideally face ${rule.idealDirection}. Currently facing $currentLabel.';
 
-      results.add(VastuResult(
+      results.add(VastuResult.create(
         detectedObject: object,
         rule: rule,
         isCompliant: isCompliant,
@@ -226,7 +226,7 @@ class VastuEngine extends ChangeNotifier {
       );
     }
     // Earth / Bhumi (South/Southwest)
-    else if (lower.contains(RegExp(r'storage|garage|luggage|tire|heavy|solid|furniture|couch|bed|cabinet|box|wardrobe|brick|stone'))) {
+    else if (lower.contains(RegExp(r'storage|garage|luggage|tire|heavy|solid|furniture|couch|sofa|bed|cabinet|box|wardrobe|brick|stone|shelf|armchair|good'))) {
       return VastuRule(
         id: 'dyn_earth',
         category: 'Dynamic (Earth)',

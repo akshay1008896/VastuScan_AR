@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vastuscan_ar/models/vastu_result.dart';
 import 'package:vastuscan_ar/theme/app_colors.dart';
@@ -68,27 +67,29 @@ class _DetectionOverlayState extends State<DetectionOverlay>
     return Stack(
       children: widget.results.map((result) {
         final box = result.detectedObject.boundingBox;
-        final left = box.left * screenSize.width;
-        final top = box.top * screenSize.height;
-        final width = box.width * screenSize.width;
-        final height = box.height * screenSize.height;
+        final isManual = result.detectedObject.isManual;
+        
+        // Manual entries are rendered differently (fake bounds)
+        double left, top, width;
+        if (isManual) {
+           left = screenSize.width * 0.1;
+           top = screenSize.height * 0.1; // Place at top roughly
+           width = screenSize.width * 0.8;
+        } else {
+           left = box.left * screenSize.width;
+           top = box.top * screenSize.height;
+           width = box.width * screenSize.width;
+        }
 
         return Positioned(
           left: left,
-          top: top,
+          top: top - 40, // Move label above the box
           width: width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Label tag
               _buildLabelTag(result),
-              SizedBox(height: height - 24),
-              // Info button for non-compliant
-              if (!result.isCompliant)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: _buildInfoButton(result),
-                ),
             ],
           ),
         );
@@ -98,13 +99,23 @@ class _DetectionOverlayState extends State<DetectionOverlay>
 
   Widget _buildLabelTag(VastuResult result) {
     final isCompliant = result.isCompliant;
-    final color = isCompliant ? AppColors.compliant : AppColors.nonCompliant;
+    final isManual = result.detectedObject.isManual;
+    
+    Color color;
+    if (isManual && !isCompliant) {
+      color = Colors.orangeAccent;
+    } else {
+      color = isCompliant ? AppColors.compliant : AppColors.nonCompliant;
+    }
+
+    final obj = result.detectedObject;
+    final String confidenceText = ' ${(obj.confidence * 100).toStringAsFixed(0)}%';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.85),
-        borderRadius: BorderRadius.circular(6),
+        color: color.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.4),
@@ -113,58 +124,45 @@ class _DetectionOverlayState extends State<DetectionOverlay>
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            isCompliant ? Icons.check_circle : Icons.warning_rounded,
-            size: 14,
-            color: Colors.white,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            result.rule.element.split('/').first.trim().toUpperCase(),
-            style: const TextStyle(
-              fontFamily: 'Outfit',
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoButton(VastuResult result) {
-    return GestureDetector(
-      onTap: () => widget.onInfoTap?.call(result),
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: AppColors.nonCompliant.withOpacity(0.9),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.nonCompliant
-                      .withOpacity(_pulseAnimation.value * 0.6),
-                  blurRadius: 12,
-                  spreadRadius: 2,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isManual ? Icons.edit : (isCompliant ? Icons.check_circle : Icons.warning_rounded),
+                size: 14,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${obj.label.toUpperCase()}${isManual ? ' (MANUAL)' : confidenceText}',
+                style: const TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            obj.label == 'object' 
+              ? 'Tap to identify specific item'
+              : '${result.currentDirectionLabel} • ${isCompliant ? "Compliant" : "Non-Compliant"}',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: obj.label == 'object' ? 9 : 10,
+              fontWeight: FontWeight.w600,
+              color: obj.label == 'object' ? Colors.white.withOpacity(0.9) : Colors.white70,
+              fontStyle: obj.label == 'object' ? FontStyle.italic : FontStyle.normal,
             ),
-            child: const Icon(
-              Icons.info_outline,
-              size: 18,
-              color: Colors.white,
-            ),
-          );
-        },
+          )
+        ],
       ),
     );
   }
@@ -179,6 +177,8 @@ class _DetectionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final result in results) {
+      if (result.detectedObject.isManual) continue; // Do not draw box for manual
+
       final box = result.detectedObject.boundingBox;
       final rect = Rect.fromLTWH(
         box.left * size.width,

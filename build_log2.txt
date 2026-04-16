@@ -1,0 +1,18 @@
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy FAILED
+
+FAILURE: Build failed with an exception.
+1 actionable task: 1 executed
+
+* What went wrong:
+Execution failed for task ':gradle:compileGroovy'.
+> BUG! exception in phase 'semantic analysis' in source unit 'C:\Dev\flutter\packages\flutter_tools\gradle\src\main\groovy\app_plugin_loader.groovy' Unsupported class file major version 65
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 8s

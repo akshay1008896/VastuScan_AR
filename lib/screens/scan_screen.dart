@@ -9,10 +9,15 @@ import 'package:vastuscan_ar/services/vastu_engine.dart';
 import 'package:vastuscan_ar/theme/app_colors.dart';
 import 'package:vastuscan_ar/widgets/compass_bar.dart';
 import 'package:vastuscan_ar/widgets/score_indicator.dart';
+import 'package:vastuscan_ar/widgets/manual_entry_sheet.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:vastuscan_ar/screens/remediation_sheet.dart';
+import 'package:vastuscan_ar/models/detected_object.dart';
+import 'package:vastuscan_ar/services/storage_service.dart';
+import 'package:vastuscan_ar/screens/non_compliant_screen.dart';
+import 'package:vastuscan_ar/screens/map_view_screen.dart';
 
 /// The main scanning screen with camera feed, compass, detection overlay, and score.
 ///
@@ -446,77 +451,6 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
-  Widget _buildBottomOverlay() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Scan Lock Toggle
-        GestureDetector(
-          onTap: () {
-            setState(() => _isScanLocked = !_isScanLocked);
-            HapticFeedback.mediumImpact();
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: _isScanLocked 
-                ? AppColors.saffron.withOpacity(0.9) 
-                : AppColors.compassBg,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: _isScanLocked ? Colors.white : AppColors.glassBorder,
-                width: 1.5,
-              ),
-              boxShadow: [
-                if (_isScanLocked)
-                  BoxShadow(
-                    color: AppColors.saffron.withOpacity(0.4),
-                    blurRadius: 15,
-                    spreadRadius: 2,
-                  ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  _isScanLocked ? Icons.lock : Icons.wifi_protected_setup,
-                  color: _isScanLocked ? Colors.white : AppColors.saffron,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  _isScanLocked ? 'SCAN LOCKED' : 'SCANNING...',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: _isScanLocked ? Colors.white : AppColors.textPrimary,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        // Score indicator
-        ListenableBuilder(
-          listenable: _vastuEngine,
-          builder: (context, _) {
-            final session = _vastuEngine.session;
-            return ScoreIndicator(
-              score: session.score,
-              totalItems: session.totalCount,
-              compliantItems: session.compliantCount,
-              nonCompliantItems: session.nonCompliantCount,
-            );
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _buildCenterReticle() {
     return Center(
       child: AnimatedContainer(
@@ -582,52 +516,200 @@ class _ScanScreenState extends State<ScanScreen>
   Widget _buildCameraLayer() {
     if (_cameraController != null && _cameraController!.value.isInitialized) {
       return SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox(
-            width: _cameraController!.value.previewSize?.height ?? 1,
-            height: _cameraController!.value.previewSize?.width ?? 1,
-            child: CameraPreview(_cameraController!),
+        child: GestureDetector(
+          onTap: _showManualEntrySheet,
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: _cameraController!.value.previewSize?.height ?? 1,
+              height: _cameraController!.value.previewSize?.width ?? 1,
+              child: CameraPreview(_cameraController!),
+            ),
           ),
         ),
       );
     }
 
     // Demo mode fallback: dark gradient simulating a camera feed
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF1A1E3A),
-            Color(0xFF0D1020),
-            Color(0xFF151830),
-            Color(0xFF0A0D1F),
-          ],
-          stops: [0.0, 0.3, 0.7, 1.0],
+    return GestureDetector(
+      onTap: _showManualEntrySheet,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1A1E3A),
+              Color(0xFF0D1020),
+              Color(0xFF151830),
+              Color(0xFF0A0D1F),
+            ],
+            stops: [0.0, 0.3, 0.7, 1.0],
+          ),
         ),
-      ),
-      child: Center(
-        child: Opacity(
-          opacity: 0.04,
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 8,
-            ),
-            itemCount: 64,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (_, i) => Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
-                  width: 0.5,
+        child: Center(
+          child: Opacity(
+            opacity: 0.04,
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 8,
+              ),
+              itemCount: 64,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (_, i) => Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 0.5,
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  void _showManualEntrySheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ManualEntrySheet(
+        currentHeading: _compassService.currentData.heading,
+        onSave: (label, category, direction, notes) {
+          final obj = DetectedObject.manual(label: label, notes: notes);
+          _detectionService.addManualObject(obj);
+          _onSensorUpdate(); // Force a re-evaluation
+        },
+      ),
+    );
+  }
+
+  Future<void> _saveSession(BuildContext context) async {
+    final session = _vastuEngine.session;
+    if (session.results.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No objects detected to save.')),
+      );
+      return;
+    }
+
+    await StorageService.instance.saveSession(session);
+    
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Scan saved successfully!'),
+          backgroundColor: AppColors.compliant,
+        ),
+      );
+    }
+  }
+
+  Widget _buildBottomOverlay() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Save Button
+            ElevatedButton.icon(
+              onPressed: () => _saveSession(context),
+              icon: const Icon(Icons.save, size: 18),
+              label: const Text('Save JSON', style: TextStyle(fontFamily: 'Outfit')),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cardSurface,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            
+            // Scan Lock Toggle
+            GestureDetector(
+              onTap: () {
+                setState(() => _isScanLocked = !_isScanLocked);
+                HapticFeedback.mediumImpact();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: _isScanLocked 
+                    ? AppColors.saffron.withOpacity(0.9) 
+                    : AppColors.compassBg,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: _isScanLocked ? Colors.white : AppColors.glassBorder,
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    if (_isScanLocked)
+                      BoxShadow(
+                        color: AppColors.saffron.withOpacity(0.4),
+                        blurRadius: 15,
+                        spreadRadius: 2,
+                      ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _isScanLocked ? Icons.lock : Icons.wifi_protected_setup,
+                      color: _isScanLocked ? Colors.white : AppColors.saffron,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _isScanLocked ? 'SCAN LOCKED' : 'SCANNING...',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: _isScanLocked ? Colors.white : AppColors.textPrimary,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Map/Issues Menu
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.white),
+              color: AppColors.cardSurface,
+              onSelected: (val) {
+                if (val == 'map') {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => MapViewScreen(session: _vastuEngine.session)));
+                } else if (val == 'issues') {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => NonCompliantScreen(session: _vastuEngine.session)));
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'map', child: Row(children: [Icon(Icons.map, color: AppColors.gold, size: 20), SizedBox(width: 8), Text('Map View', style: TextStyle(color: Colors.white))])),
+                const PopupMenuItem(value: 'issues', child: Row(children: [Icon(Icons.warning, color: AppColors.nonCompliant, size: 20), SizedBox(width: 8), Text('Issues', style: TextStyle(color: Colors.white))])),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        // Score indicator
+        ListenableBuilder(
+          listenable: _vastuEngine,
+          builder: (context, _) {
+            final session = _vastuEngine.session;
+            return ScoreIndicator(
+              score: session.score,
+              totalItems: session.totalCount,
+              compliantItems: session.compliantCount,
+              nonCompliantItems: session.nonCompliantCount,
+            );
+          },
+        ),
+      ],
     );
   }
 
