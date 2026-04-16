@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vastuscan_ar/theme/app_colors.dart';
 
+import 'package:vastuscan_ar/models/vastu_result.dart';
+
 /// Animated circular Vastu Score indicator widget.
 ///
 /// Shows a ring progress with percentage and item count,
@@ -11,6 +13,7 @@ class ScoreIndicator extends StatefulWidget {
   final int totalItems;
   final int compliantItems;
   final int nonCompliantItems;
+  final List<VastuResult> results;
 
   const ScoreIndicator({
     super.key,
@@ -18,6 +21,7 @@ class ScoreIndicator extends StatefulWidget {
     required this.totalItems,
     required this.compliantItems,
     required this.nonCompliantItems,
+    this.results = const [],
   });
 
   @override
@@ -28,6 +32,7 @@ class _ScoreIndicatorState extends State<ScoreIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scoreAnimation;
+  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -94,92 +99,166 @@ class _ScoreIndicatorState extends State<ScoreIndicator>
           final animatedScore = _scoreAnimation.value;
           final scoreColor = _getScoreColor(animatedScore);
 
-          return Row(
+          final nonCompliantResults = widget.results.where((r) => !r.isCompliant).toList();
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Circular progress
-              SizedBox(
-                width: 52,
-                height: 52,
-                child: CustomPaint(
-                  painter: _CircularScorePainter(
-                    score: animatedScore / 100,
-                    color: scoreColor,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${animatedScore.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
+              Row(
+                children: [
+                  // Circular progress
+                  SizedBox(
+                    width: 52,
+                    height: 52,
+                    child: CustomPaint(
+                      painter: _CircularScorePainter(
+                        score: animatedScore / 100,
                         color: scoreColor,
                       ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Score details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'VASTU SCORE',
+                      child: Center(
+                        child: Text(
+                          '${animatedScore.toStringAsFixed(0)}',
                           style: TextStyle(
                             fontFamily: 'Outfit',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textMuted,
-                            letterSpacing: 2.0,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: scoreColor,
                           ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${widget.totalItems} items',
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    // Progress bar
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: SizedBox(
-                        height: 6,
-                        child: LinearProgressIndicator(
-                          value: animatedScore / 100,
-                          backgroundColor: AppColors.lightSurface,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(scoreColor),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    // Item counts
-                    Row(
+                  ),
+                  const SizedBox(width: 16),
+                  // Score details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        _StatusDot(
-                          color: AppColors.compliant,
-                          label: '${widget.compliantItems} OK',
+                        Row(
+                          children: [
+                            const Text(
+                              'VASTU SCORE',
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textMuted,
+                                letterSpacing: 2.0,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${widget.totalItems} items',
+                              style: const TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        _StatusDot(
-                          color: AppColors.nonCompliant,
-                          label: '${widget.nonCompliantItems} Fix',
+                        const SizedBox(height: 8),
+                        // Progress bar
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: SizedBox(
+                            height: 6,
+                            child: LinearProgressIndicator(
+                              value: animatedScore / 100,
+                              backgroundColor: AppColors.lightSurface,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(scoreColor),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        // Item counts
+                        Row(
+                          children: [
+                            _StatusDot(
+                              color: AppColors.compliant,
+                              label: '${widget.compliantItems} OK',
+                            ),
+                            const SizedBox(width: 16),
+                            _StatusDot(
+                              color: AppColors.nonCompliant,
+                              label: '${widget.nonCompliantItems} Fix',
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  if (nonCompliantResults.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.cardSurface,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.border, width: 1),
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                          color: AppColors.textPrimary,
+                          size: 20,
+                        ),
+                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          setState(() {
+                            _isExpanded = !_isExpanded;
+                          });
+                        },
+                      ),
+                    ),
+                  ]
+                ],
               ),
+              if (_isExpanded && nonCompliantResults.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Divider(height: 1, color: AppColors.divider),
+                const SizedBox(height: 12),
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 180),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: nonCompliantResults.map((r) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: AppColors.nonCompliant, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${r.rule.element} (Current: ${r.currentDirectionLabel})', 
+                                    style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Move to: ${r.rule.idealDirection}', 
+                                    style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    r.rule.practicalTips, 
+                                    style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: AppColors.textMuted, height: 1.3),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )).toList(),
+                    ),
+                  ),
+                ),
+              ]
             ],
           );
         },

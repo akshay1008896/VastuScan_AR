@@ -739,6 +739,7 @@ class _ScanScreenState extends State<ScanScreen>
               totalItems: session.totalCount,
               compliantItems: session.compliantCount,
               nonCompliantItems: session.nonCompliantCount,
+              results: session.results,
             );
           },
         ),
