@@ -27,12 +27,12 @@ class CompassBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.compassBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder, width: 1),
+        border: Border.all(color: AppColors.border, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+            color: AppColors.saffron.withOpacity(0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 3),
           ),
         ],
       ),

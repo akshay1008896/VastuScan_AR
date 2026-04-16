@@ -19,7 +19,7 @@ class RemediationSheet extends StatelessWidget {
         maxHeight: MediaQuery.of(context).size.height * 0.75,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
+        color: AppColors.cardSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -119,9 +119,9 @@ class RemediationSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardSurface,
+        color: AppColors.warmSand,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder, width: 1),
+        border: Border.all(color: AppColors.border, width: 1),
       ),
       child: Row(
         children: [
@@ -223,9 +223,9 @@ class RemediationSheet extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.cardSurface,
+            color: AppColors.warmSand,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.glassBorder, width: 1),
+            border: Border.all(color: AppColors.border, width: 1),
           ),
           child: Text(
             result.rule.practicalTips,

@@ -212,21 +212,21 @@ class VastuEngine extends ChangeNotifier {
         cocoLabels: [lower],
       );
     }
-    // Water / Jal (Northeast)
-    else if (lower.contains(RegExp(r'cool|liquid|sink|wash|pool|pipe|glass|drink|bottle|water|tap|fluid|ice'))) {
+    // Water / Jal / Spiritual (Northeast)
+    else if (lower.contains(RegExp(r'cool|liquid|sink|wash|pool|pipe|glass|drink|bottle|water|tap|fluid|ice|pooja|puja|idol|sacred|temple|god|prayer|tulsi|diya|kalash|bell|agarbatti|havan'))) {
       return VastuRule(
-        id: 'dyn_water',
-        category: 'Dynamic (Water)',
-        element: 'Water Component',
+        id: 'dyn_water_spiritual',
+        category: 'Water / Spiritual',
+        element: 'Water / Divine Component',
         idealDirection: 'NorthEast',
         applicableTo: ['N', 'NE', 'E'],
-        purpose: 'Flowing elements signify incoming wealth and serenity.',
-        practicalTips: 'If placed in the South, it causes financial instability. Move towards North/NorthEast.',
+        purpose: 'Flowing elements and spiritual items signify incoming wealth, serenity, and divine blessings.',
+        practicalTips: 'Must be kept completely clean. If placed in the South, it causes financial instability. Move towards North/NorthEast (Ishan or Vayavya).',
         cocoLabels: [lower],
       );
     }
     // Earth / Bhumi (South/Southwest)
-    else if (lower.contains(RegExp(r'storage|garage|luggage|tire|heavy|solid|furniture|couch|sofa|bed|cabinet|box|wardrobe|brick|stone|shelf|armchair|good'))) {
+    else if (lower.contains(RegExp(r'storage|garage|luggage|tire|heavy|solid|furniture|couch|sofa|bed|cabinet|box|wardrobe|brick|stone|shelf|armchair|good|matka|ammikal'))) {
       return VastuRule(
         id: 'dyn_earth',
         category: 'Dynamic (Earth)',

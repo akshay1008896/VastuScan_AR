@@ -29,12 +29,12 @@ class _NonCompliantScreenState extends State<NonCompliantScreen> {
         : nonCompliantItems.where((r) => r.currentDirectionLabel == _selectedFilter).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.deepNavy,
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Non-Compliant Items', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
+        title: const Text('Non-Compliant Items', style: TextStyle(fontFamily: 'Outfit', color: AppColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.saffron),
       ),
       body: Column(
         children: [
@@ -105,7 +105,14 @@ class _NonCompliantScreenState extends State<NonCompliantScreen> {
       decoration: BoxDecoration(
         color: AppColors.cardSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.nonCompliant.withOpacity(0.5), width: 1.5),
+        border: Border.all(color: AppColors.nonCompliant.withOpacity(0.4), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.nonCompliant.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -122,7 +129,7 @@ class _NonCompliantScreenState extends State<NonCompliantScreen> {
                       fontFamily: 'Outfit',
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),

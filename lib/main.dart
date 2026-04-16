@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vastuscan_ar/app.dart';
+import 'package:vastuscan_ar/services/settings_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SettingsService.instance.init();
 
   // Lock to portrait mode for best AR experience
   SystemChrome.setPreferredOrientations([

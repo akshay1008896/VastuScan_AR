@@ -7,12 +7,12 @@ class VastuInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.deepNavy,
+      backgroundColor: AppColors.warmSand,
       appBar: AppBar(
-        title: const Text('Vastu Guide', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
+        title: const Text('Vastu Guide', style: TextStyle(fontFamily: 'Outfit', color: AppColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.saffron),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -24,7 +24,7 @@ class VastuInfoScreen extends StatelessWidget {
             padding: EdgeInsets.only(left: 8.0, bottom: 12),
             child: Text(
               'Directional Guidelines',
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
           ),
           _buildDirectionCard('NorthEast (Ishan)', AppColors.elementWater, Icons.water_drop, 'Water Element', 'Ideal for Pooja room, meditation, and lightweight items. Keep clean and clutter-free.'),
@@ -37,7 +37,7 @@ class VastuInfoScreen extends StatelessWidget {
             padding: EdgeInsets.only(left: 8.0, bottom: 12),
             child: Text(
               'Common Objects',
-              style: TextStyle(fontFamily: 'Outfit', fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
           ),
           _buildObjectCard('Bed', 'South or West wall with head facing South or East.', Icons.bed),
@@ -56,7 +56,14 @@ class VastuInfoScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.saffron.withOpacity(0.5), width: 1.5),
+        border: Border.all(color: AppColors.saffron.withOpacity(0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.saffron.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +93,7 @@ class VastuInfoScreen extends StatelessWidget {
   Widget _buildDirectionCard(String title, Color color, IconData icon, String subtitle, String desc) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(color: AppColors.elevatedSurface, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: AppColors.cardSurface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.divider)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -128,7 +135,7 @@ class VastuInfoScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: Icon(icon, color: AppColors.textSecondary, size: 28),
-        title: Text(name, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: Colors.white)),
+        title: Text(name, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
         subtitle: Text('Best Placement: $placement', style: const TextStyle(fontFamily: 'Inter', fontSize: 12, color: AppColors.compliant)),
       ),
     );

@@ -77,14 +77,14 @@ class _ScoreIndicatorState extends State<ScoreIndicator>
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.compassBg,
+        color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder, width: 1),
+        border: Border.all(color: AppColors.border, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
+            color: AppColors.saffron.withOpacity(0.12),
+            blurRadius: 16,
+            offset: const Offset(0, -3),
           ),
         ],
       ),
@@ -156,8 +156,7 @@ class _ScoreIndicatorState extends State<ScoreIndicator>
                         height: 6,
                         child: LinearProgressIndicator(
                           value: animatedScore / 100,
-                          backgroundColor:
-                              AppColors.elevatedSurface.withOpacity(0.5),
+                          backgroundColor: AppColors.lightSurface,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(scoreColor),
                         ),
@@ -242,7 +241,7 @@ class _CircularScorePainter extends CustomPainter {
 
     // Background ring
     final bgPaint = Paint()
-      ..color = AppColors.elevatedSurface.withOpacity(0.5)
+      ..color = AppColors.lightSurface
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4;
     canvas.drawCircle(center, radius, bgPaint);

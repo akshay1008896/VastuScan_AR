@@ -13,7 +13,7 @@ class VastuScanApp extends StatelessWidget {
     return MaterialApp(
       title: 'VastuScan AR',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),

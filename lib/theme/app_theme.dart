@@ -2,31 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vastuscan_ar/theme/app_colors.dart';
 
-/// VastuScan AR Theme Configuration.
+/// VastuScan AR Theme Configuration — Warm Light Theme.
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get darkTheme {
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.deepNavy,
-      
-      colorScheme: const ColorScheme.dark(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: AppColors.cream,
+
+      colorScheme: const ColorScheme.light(
         primary: AppColors.saffron,
         onPrimary: AppColors.textOnSaffron,
         secondary: AppColors.gold,
-        onSecondary: AppColors.deepNavy,
-        surface: AppColors.darkSurface,
+        onSecondary: AppColors.textOnSaffron,
+        surface: AppColors.cardSurface,
         onSurface: AppColors.textPrimary,
         error: AppColors.nonCompliant,
         onError: Colors.white,
+        outline: AppColors.border,
       ),
 
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
         centerTitle: true,
         titleTextStyle: TextStyle(
           fontFamily: 'Outfit',
@@ -113,8 +114,25 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.saffron,
           foregroundColor: Colors.white,
-          elevation: 0,
+          elevation: 2,
+          shadowColor: AppColors.saffron.withOpacity(0.4),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'Outfit',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.saffron,
+          side: const BorderSide(color: AppColors.saffron, width: 2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -134,22 +152,39 @@ class AppTheme {
 
       cardTheme: CardThemeData(
         color: AppColors.cardSurface,
-        elevation: 0,
+        elevation: 2,
+        shadowColor: AppColors.saffron.withOpacity(0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(
-            color: AppColors.glassBorder,
+            color: AppColors.divider,
             width: 1,
           ),
         ),
       ),
 
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: AppColors.cardSurface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
       ),
+
+      dividerTheme: const DividerThemeData(
+        color: AppColors.divider,
+        thickness: 1,
+      ),
+
+      snackBarTheme: const SnackBarThemeData(
+        backgroundColor: AppColors.textPrimary,
+        contentTextStyle: TextStyle(
+          color: Colors.white,
+          fontFamily: 'Inter',
+        ),
+      ),
     );
   }
+
+  // Keep backward compat alias
+  static ThemeData get darkTheme => lightTheme;
 }

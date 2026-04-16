@@ -18,6 +18,8 @@ import 'package:vastuscan_ar/models/detected_object.dart';
 import 'package:vastuscan_ar/services/storage_service.dart';
 import 'package:vastuscan_ar/screens/non_compliant_screen.dart';
 import 'package:vastuscan_ar/screens/map_view_screen.dart';
+import 'package:vastuscan_ar/services/vastu_lens_service.dart';
+import 'package:vastuscan_ar/services/settings_service.dart';
 
 /// The main scanning screen with camera feed, compass, detection overlay, and score.
 ///
@@ -47,6 +49,7 @@ class _ScanScreenState extends State<ScanScreen>
 
   bool _isInitialized = false;
   bool _isScanLocked = false;
+  bool _isLensScanning = false;
   List<VastuResult> _vastuResults = [];
 
   final _orientations = {
@@ -307,7 +310,7 @@ class _ScanScreenState extends State<ScanScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           // Layer 1: Camera feed with live ML processing
@@ -402,14 +405,21 @@ class _ScanScreenState extends State<ScanScreen>
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.white.withOpacity(0.88),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: objects.isNotEmpty
-                  ? Colors.green.withOpacity(0.5)
-                  : AppColors.saffron.withOpacity(0.3),
+                  ? AppColors.compliant.withOpacity(0.5)
+                  : AppColors.saffron.withOpacity(0.5),
               width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.saffron.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -437,7 +447,7 @@ class _ScanScreenState extends State<ScanScreen>
                     fontFamily: 'Inter',
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     letterSpacing: 0.3,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -622,8 +632,31 @@ class _ScanScreenState extends State<ScanScreen>
               label: const Text('Save JSON', style: TextStyle(fontFamily: 'Outfit')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.cardSurface,
+                foregroundColor: AppColors.textPrimary,
+                elevation: 1,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: AppColors.divider),
+                ),
+              ),
+            ),
+            
+            // Vastu Lens Button
+            ElevatedButton.icon(
+              onPressed: _performVastuLensScan,
+              icon: _isLensScanning 
+                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Vastu Lens', style: TextStyle(fontFamily: 'Outfit')),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.saffron,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             
@@ -637,11 +670,11 @@ class _ScanScreenState extends State<ScanScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
                   color: _isScanLocked 
-                    ? AppColors.saffron.withOpacity(0.9) 
-                    : AppColors.compassBg,
+                    ? AppColors.saffron 
+                    : Colors.white.withOpacity(0.92),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: _isScanLocked ? Colors.white : AppColors.glassBorder,
+                    color: _isScanLocked ? AppColors.saffronDark : AppColors.border,
                     width: 1.5,
                   ),
                   boxShadow: [
@@ -668,7 +701,7 @@ class _ScanScreenState extends State<ScanScreen>
                         fontFamily: 'Outfit',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: _isScanLocked ? Colors.white : AppColors.textPrimary,
+                        color: _isScanLocked ? Colors.white : AppColors.saffron,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -679,7 +712,7 @@ class _ScanScreenState extends State<ScanScreen>
 
             // Map/Issues Menu
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: Colors.white),
+              icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
               color: AppColors.cardSurface,
               onSelected: (val) {
                 if (val == 'map') {
@@ -689,8 +722,8 @@ class _ScanScreenState extends State<ScanScreen>
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(value: 'map', child: Row(children: [Icon(Icons.map, color: AppColors.gold, size: 20), SizedBox(width: 8), Text('Map View', style: TextStyle(color: Colors.white))])),
-                const PopupMenuItem(value: 'issues', child: Row(children: [Icon(Icons.warning, color: AppColors.nonCompliant, size: 20), SizedBox(width: 8), Text('Issues', style: TextStyle(color: Colors.white))])),
+                const PopupMenuItem(value: 'map', child: Row(children: [Icon(Icons.map, color: AppColors.gold, size: 20), SizedBox(width: 8), Text('Map View', style: TextStyle(color: AppColors.textPrimary))])),
+                const PopupMenuItem(value: 'issues', child: Row(children: [Icon(Icons.warning, color: AppColors.nonCompliant, size: 20), SizedBox(width: 8), Text('Issues', style: TextStyle(color: AppColors.textPrimary))])),
               ],
             ),
           ],
@@ -710,6 +743,100 @@ class _ScanScreenState extends State<ScanScreen>
           },
         ),
       ],
+    );
+  }
+
+  Future<void> _performVastuLensScan() async {
+    if (!SettingsService.instance.isConfigured) {
+       _showLensSettingsDialog();
+       return;
+    }
+  
+    if (_isLensScanning || _cameraController == null) return;
+    
+    setState(() {
+      _isScanLocked = true;
+      _isLensScanning = true;
+    });
+    
+    try {
+       final image = await _cameraController!.takePicture();
+       final bytes = await image.readAsBytes();
+       
+       final objects = await VastuLensService.instance.analyzeImage(bytes);
+       
+       if (objects.isNotEmpty) {
+         _detectionService.clear();
+         for (var obj in objects) {
+            _detectionService.addManualObject(obj); 
+         }
+         
+         final heading = _compassService.currentData.heading;
+         _vastuEngine.evaluateAll(objects, heading);
+         
+         if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text('Vastu Lens detected \${objects.length} items!'), backgroundColor: AppColors.compliant),
+           );
+         }
+       } else {
+         if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             const SnackBar(content: Text('No recognizable items found.'), backgroundColor: AppColors.warning),
+           );
+         }
+       }
+    } catch (e) {
+       if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text('Lens Error: \$e'), backgroundColor: AppColors.nonCompliant),
+          );
+       }
+    } finally {
+       if (mounted) {
+         setState(() {
+           _isLensScanning = false;
+         });
+       }
+    }
+  }
+  
+  void _showLensSettingsDialog() {
+    final controller = TextEditingController(text: SettingsService.instance.geminiApiKey);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardSurface,
+        title: const Text('Vastu Lens Setup', style: TextStyle(color: AppColors.textPrimary, fontFamily: 'Outfit')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Vastu Lens uses Google Gemini API to scan the room accurately for 400+ specific items.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontFamily: 'Inter')),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: 'Gemini API Key',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              await SettingsService.instance.setGeminiApiKey(controller.text.trim());
+              Navigator.pop(ctx);
+              if (SettingsService.instance.isConfigured) {
+                _performVastuLensScan();
+              }
+            },
+            child: const Text('Save & Scan'),
+          ),
+        ],
+      )
     );
   }
 
@@ -877,9 +1004,15 @@ class _ScanScreenState extends State<ScanScreen>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: AppColors.compassBg,
+          color: Colors.white.withOpacity(0.90),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.glassBorder, width: 1),
+          border: Border.all(color: AppColors.border, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.saffron.withOpacity(0.1),
+              blurRadius: 8,
+            ),
+          ],
         ),
         child: const Icon(
           Icons.arrow_back_ios_new,
@@ -892,39 +1025,54 @@ class _ScanScreenState extends State<ScanScreen>
 
   Widget _buildLoadingOverlay() {
     return Container(
-      color: AppColors.deepNavy.withOpacity(0.9),
-      child: const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 48,
-              height: 48,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.saffron),
+      color: AppColors.cream.withOpacity(0.95),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+          decoration: BoxDecoration(
+            color: AppColors.cardSurface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.saffron.withOpacity(0.12),
+                blurRadius: 24,
+                spreadRadius: 4,
               ),
-            ),
-            SizedBox(height: 24),
-            Text(
-              'Initializing Scanner...',
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+            ],
+            border: Border.all(color: AppColors.divider),
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.saffron),
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Loading Vastu rules & detection model',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                color: AppColors.textMuted,
+              SizedBox(height: 24),
+              Text(
+                'Initializing Scanner...',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 8),
+              Text(
+                'Loading Vastu rules & AI detection model',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

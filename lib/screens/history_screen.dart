@@ -30,12 +30,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.deepNavy,
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
-        title: const Text('Scan History', style: TextStyle(fontFamily: 'Outfit', color: Colors.white)),
+        title: const Text('Scan History', style: TextStyle(fontFamily: 'Outfit', color: AppColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.saffron),
       ),
       body: FutureBuilder<List<ScanSession>>(
         future: _sessionsFuture,
@@ -85,14 +85,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
       decoration: BoxDecoration(
         color: AppColors.cardSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder, width: 1),
+        border: Border.all(color: AppColors.divider, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.saffron.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           title: Text(
             session.name,
-            style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+            style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 18),
           ),
           subtitle: Text(
             '$dateStr • $timeStr',
@@ -153,7 +160,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     ],
                   ),
-                  const Divider(color: AppColors.glassBorder, height: 24),
+                  const Divider(color: AppColors.divider, height: 24),
                   Align(
                     alignment: Alignment.centerRight,
                     child: IconButton(
@@ -191,7 +198,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.cardSurface,
-        title: const Text('Delete Scan?', style: TextStyle(color: Colors.white, fontFamily: 'Outfit')),
+        title: const Text('Delete Scan?', style: TextStyle(color: AppColors.textPrimary, fontFamily: 'Outfit')),
         content: const Text('This scan data will be permanently removed.', style: TextStyle(color: AppColors.textSecondary)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),

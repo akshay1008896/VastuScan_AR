@@ -11,12 +11,12 @@ class MapViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.deepNavy,
+      backgroundColor: AppColors.warmSand,
       appBar: AppBar(
-        title: Text('${session.name} Map', style: const TextStyle(fontFamily: 'Outfit', color: Colors.white)),
+        title: Text('${session.name} Map', style: const TextStyle(fontFamily: 'Outfit', color: AppColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.saffron),
       ),
       body: Column(
         children: [
@@ -40,7 +40,14 @@ class MapViewScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.cardSurface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.glassBorder, width: 2),
+                    border: Border.all(color: AppColors.divider, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.saffron.withOpacity(0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(14),
@@ -74,7 +81,7 @@ class MapViewScreen extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        Text(label, style: const TextStyle(fontFamily: 'Inter', color: Colors.white, fontSize: 12)),
+        Text(label, style: const TextStyle(fontFamily: 'Inter', color: AppColors.textPrimary, fontSize: 12)),
       ],
     );
   }
@@ -87,11 +94,11 @@ class RoomMapPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final bgPaint = Paint()..color = AppColors.deepNavy.withOpacity(0.5);
+    final bgPaint = Paint()..color = AppColors.warmSand.withOpacity(0.5);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
 
     final compassPaint = Paint()
-      ..color = AppColors.glassBorder
+      ..color = AppColors.divider
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     
@@ -141,7 +148,7 @@ class RoomMapPainter extends CustomPainter {
 
       final textSpan = TextSpan(
         text: '\${obj.label}\n\${result.currentDirectionLabel}',
-        style: const TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'Outfit', fontWeight: FontWeight.bold),
+        style: const TextStyle(color: AppColors.textPrimary, fontSize: 10, fontFamily: 'Outfit', fontWeight: FontWeight.bold),
       );
 
       final textPainter = TextPainter(

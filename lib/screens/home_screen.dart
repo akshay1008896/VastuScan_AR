@@ -7,7 +7,7 @@ import 'package:vastuscan_ar/screens/scan_screen.dart';
 /// VastuScan AR Home Screen.
 ///
 /// Premium landing page with branding, feature highlights,
-/// and the "Start Scan" CTA.
+/// and the "Start Scan" CTA. Light warm theme.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
 
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1200),
@@ -56,10 +56,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.deepNavy,
+      backgroundColor: AppColors.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
         actions: [
           IconButton(
             onPressed: () => Navigator.pushNamed(context, '/history'),
@@ -69,20 +70,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(flex: 2),
-                _buildLogoSection(),
-                const Spacer(flex: 2),
-                _buildButtons(context),
-                const SizedBox(height: 40),
-              ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppColors.backgroundGradient,
+        ),
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(flex: 2),
+                  _buildLogoSection(),
+                  const SizedBox(height: 32),
+                  _buildFeatureChips(),
+                  const Spacer(flex: 2),
+                  _buildButtons(context),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
           ),
         ),
@@ -117,9 +125,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.saffron.withOpacity(0.3),
-                  blurRadius: 30,
-                  spreadRadius: 5,
+                  color: AppColors.saffron.withOpacity(0.35),
+                  blurRadius: 32,
+                  spreadRadius: 6,
                 ),
               ],
             ),
@@ -160,6 +168,51 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFeatureChips() {
+    final features = [
+      ('🔍', 'AI Detection'),
+      ('🧭', 'Compass'),
+      ('🚪', 'Entrance'),
+      ('📜', 'Vastu Rules'),
+    ];
+    return Wrap(
+      spacing: 10,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: features.map((f) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.cardSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.divider),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.saffron.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(f.$1, style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 6),
+            Text(
+              f.$2,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      )).toList(),
     );
   }
 
@@ -207,8 +260,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Navigator.pushNamed(context, '/info');
             },
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.gold,
-              side: const BorderSide(color: AppColors.gold, width: 2),
+              foregroundColor: AppColors.saffron,
+              side: const BorderSide(color: AppColors.saffron, width: 2),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
