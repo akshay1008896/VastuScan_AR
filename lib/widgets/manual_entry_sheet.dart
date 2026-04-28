@@ -85,14 +85,14 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
                   fontFamily: 'Outfit',
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
               
               TextFormField(
                 controller: _nameController,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: AppColors.textPrimary),
                 decoration: _inputDecoration('Object Name', Icons.label),
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
@@ -106,7 +106,7 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
                 },
                 decoration: _inputDecoration('Category', Icons.category),
                 dropdownColor: AppColors.cardSurface,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
+                style: const TextStyle(color: AppColors.textPrimary, fontFamily: 'Inter'),
               ),
               const SizedBox(height: 16),
               
@@ -118,13 +118,13 @@ class _ManualEntrySheetState extends State<ManualEntrySheet> {
                 },
                 decoration: _inputDecoration('Direction', Icons.explore),
                 dropdownColor: AppColors.cardSurface,
-                style: const TextStyle(color: Colors.white, fontFamily: 'Inter'),
+                style: const TextStyle(color: AppColors.textPrimary, fontFamily: 'Inter'),
               ),
               const SizedBox(height: 16),
               
               TextFormField(
                 controller: _notesController,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: AppColors.textPrimary),
                 decoration: _inputDecoration('Notes (Optional)', Icons.notes),
                 maxLines: 2,
               ),

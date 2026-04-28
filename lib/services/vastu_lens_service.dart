@@ -19,15 +19,16 @@ class VastuLensService {
     if (apiKey.isEmpty) return;
     
     _model = GenerativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       apiKey: apiKey,
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
       ),
     );
+    debugPrint('GEMINI_LENS: Model initialized (gemini-2.5-flash)');
   }
 
-  /// Sends the image to Gemini 1.5 and retrieves specific items based on a master list
+  /// Sends the image to Gemini and identifies EVERY object with maximum precision.
   Future<List<DetectedObject>> analyzeImage(Uint8List imageBytes) async {
     if (_model == null) {
       initializeModel();
@@ -37,33 +38,42 @@ class VastuLensService {
     }
 
     final prompt = '''
-Analyze this image and act as a "Google Lens" specifically tuned for a Vastu Shastra analysis app. 
-Identify ALL items in the frame meticulously. Use highly specific names.
-Particularly, look for items from this exhaustive master list classification:
-- **Kitchen / Cooking:** matka, pooja thali, belan, chakla, gas stove, oven, refrigerator, spices, microwave, idli stand, earthen pot, dining table.
-- **Living:** sofa, television, center table, armchair, rug, diwan, urli, shoe rack, clock.
-- **Bedroom:** bed, wardrobe, mirror, dressing table, study table, safe locker.
-- **Puja / Religion:** diya, idol, kalash, tulsi vrindavan, bell, agarbatti, havan kund, altar.
-- **Bathroom/Utilities:** washing machine, toilet, sink, bathtub, dustbin.
-- **Structural:** main entrance door, room door, kitchen door, window, staircase, balcony.
+You are an expert object identifier. Look at this image carefully and identify EVERY distinct real-world object you can see.
 
-For each item found, estimate a 2D bounding box showing its relaitive position.
-Return a valid JSON array exactly matching this format. The coordinates MUST be normalized float numbers between 0.0 and 1.0.
+STRICT RULES — READ CAREFULLY:
+1. ONLY identify what you can ACTUALLY SEE in the image. Do NOT guess or hallucinate objects.
+2. Be SPECIFIC with names:
+   - NOT "object" → use exact name like "ceiling fan", "table lamp", "coffee mug"
+   - NOT "food" → use "banana", "apple", "bread loaf"  
+   - NOT "furniture" → use "wooden desk", "office chair", "bookshelf"
+   - NOT "electronics" → use "laptop", "smartphone", "LED TV"
+3. Common household items to look for: ceiling fan, table fan, pedestal fan, wall clock, photo frame, mirror, curtain, sofa, dining table, chair, bed, pillow, wardrobe, almirah, TV, AC, refrigerator, washing machine, microwave, gas stove, water purifier, shoe rack, doormat, plant pot, lamp, bulb, tube light
+4. For Indian/cultural items: brass diya, pooja thali, Ganesha idol, tulsi plant, kalash, agarbatti holder, rangoli, toran, swastik, rudraksha
+5. For crystals/stones: pyrite, amethyst, rose quartz, citrine, black tourmaline, tiger eye
+6. A ceiling fan is a FAN not a cake. A ball is a BALL not a mobile. Be precise about shape vs function.
+7. Doors, windows, and structural elements should also be identified: "wooden door", "glass window", "main entrance door"
+
+For each object, estimate its bounding box in the image as normalized coordinates (0.0 to 1.0).
+Return ONLY a valid JSON array:
 [
-  {
-    "label": "string (the specific item name)",
-    "ymin": float (0.0 to 1.0),
-    "xmin": float (0.0 to 1.0),
-    "ymax": float (0.0 to 1.0),
-    "xmax": float (0.0 to 1.0)
-  }
+  {"label": "exact name", "ymin": 0.0, "xmin": 0.0, "ymax": 1.0, "xmax": 1.0}
 ]
+If no objects found, return: []
 ''';
+
+    // Always send as image/jpeg for best compatibility
+    // If it's BMP, note that Gemini should still handle it
+    String mimeType = 'image/jpeg';
+    if (imageBytes.length > 2 && imageBytes[0] == 0x42 && imageBytes[1] == 0x4D) {
+      mimeType = 'image/bmp';
+    } else if (imageBytes.length > 4 && imageBytes[0] == 0x89 && imageBytes[1] == 0x50) {
+      mimeType = 'image/png';
+    }
 
     final content = [
       Content.multi([
         TextPart(prompt),
-        DataPart('image/jpeg', imageBytes),
+        DataPart(mimeType, imageBytes),
       ])
     ];
 
@@ -78,24 +88,33 @@ Return a valid JSON array exactly matching this format. The coordinates MUST be 
       final List<dynamic> jsonList = jsonDecode(responseText);
       final List<DetectedObject> objects = [];
       
-      int idCounter = 1000; // Unique IDs for Gemini objects
+      int idCounter = 1000;
       
       for (var item in jsonList) {
-        final double ymin = (item['ymin'] as num).toDouble();
-        final double xmin = (item['xmin'] as num).toDouble();
-        final double ymax = (item['ymax'] as num).toDouble();
-        final double xmax = (item['xmax'] as num).toDouble();
+        final double ymin = (item['ymin'] as num).toDouble().clamp(0.0, 1.0);
+        final double xmin = (item['xmin'] as num).toDouble().clamp(0.0, 1.0);
+        final double ymax = (item['ymax'] as num).toDouble().clamp(0.0, 1.0);
+        final double xmax = (item['xmax'] as num).toDouble().clamp(0.0, 1.0);
         
+        String label = item['label'].toString().toLowerCase().trim();
+        // Skip generic/useless labels
+        if (label == 'object' || label == 'unknown' || label.isEmpty) continue;
+        
+        // Convert object_code to Title Case (e.g. dining_table -> Dining Table)
+        label = label.replaceAll('_', ' ').split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ');
+
         objects.add(DetectedObject.fromML(
-          label: item['label'].toString().toLowerCase(),
-          confidence: 0.95, // High confidence for Cloud AI
+          label: label,
+          confidence: 0.95,
           boundingBox: Rect.fromLTRB(xmin, ymin, xmax, ymax),
           trackingId: idCounter++,
         ));
       }
+      
+      debugPrint('GEMINI_LENS: Identified ${objects.length} objects: ${objects.map((o) => o.label).join(", ")}');
       return objects;
     } catch (e) {
-      debugPrint("Vastu Lens Error: \$e");
+      debugPrint("Gemini Lens Error: $e");
       rethrow;
     }
   }

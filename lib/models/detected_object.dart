@@ -29,6 +29,9 @@ class DetectedObject {
   /// Optional notes for manually entered objects.
   final String? notes;
 
+  /// The original compass heading when this object was manually added.
+  final double? originalHeading;
+
   const DetectedObject({
     required this.id,
     required this.trackingId,
@@ -38,6 +41,7 @@ class DetectedObject {
     required this.timestamp,
     this.isManual = false,
     this.notes,
+    this.originalHeading,
   });
 
   /// Creates a demo object for testing without a real camera.
@@ -58,6 +62,7 @@ class DetectedObject {
       timestamp: DateTime.now(),
       isManual: isManual,
       notes: notes,
+      originalHeading: null,
     );
   }
 
@@ -76,23 +81,25 @@ class DetectedObject {
       boundingBox: boundingBox,
       timestamp: DateTime.now(),
       isManual: false,
+      originalHeading: null,
     );
   }
 
-  /// Creates a manual entry object.
   factory DetectedObject.manual({
     required String label,
     required String? notes,
+    required double originalHeading,
   }) {
     return DetectedObject(
       id: _uuid.v4(),
       trackingId: -1, // -1 means it's not tracked by the camera
       label: label,
       confidence: 1.0,
-      boundingBox: Rect.fromLTWH(0.5, 0.5, 0, 0), // Centered tiny box as it's not visually tied yet
+      boundingBox: Rect.fromLTWH(0.5, 0.5, 0, 0), // Centered initially
       timestamp: DateTime.now(),
       isManual: true,
       notes: notes,
+      originalHeading: originalHeading,
     );
   }
 
@@ -111,6 +118,7 @@ class DetectedObject {
       'timestamp': timestamp.toIso8601String(),
       'isManual': isManual,
       'notes': notes,
+      'originalHeading': originalHeading,
     };
   }
 
@@ -130,6 +138,7 @@ class DetectedObject {
       timestamp: DateTime.parse(json['timestamp'] as String),
       isManual: json['isManual'] as bool? ?? false,
       notes: json['notes'] as String?,
+      originalHeading: (json['originalHeading'] as num?)?.toDouble(),
     );
   }
 

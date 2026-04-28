@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vastuscan_ar/theme/app_colors.dart';
 import 'package:vastuscan_ar/screens/scan_screen.dart';
+import 'package:vastuscan_ar/screens/floor_plan_screen.dart';
+import 'package:vastuscan_ar/screens/polycam_scanner_screen.dart';
+import 'package:vastuscan_ar/widgets/glass_button.dart';
 
-/// VastuScan AR Home Screen.
-///
-/// Premium landing page with branding, feature highlights,
-/// and the "Start Scan" CTA. Light warm theme.
+/// VastuScan AR Home Screen — Dreamy Pastel Design.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -57,44 +57,97 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cream,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pushNamed(context, '/history'),
-            icon: const Icon(Icons.history_rounded, color: AppColors.gold, size: 28),
-            tooltip: 'Scan History',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
+          gradient: AppColors.dreamyGradient,
         ),
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Spacer(flex: 2),
-                  _buildLogoSection(),
-                  const SizedBox(height: 32),
-                  _buildFeatureChips(),
-                  const Spacer(flex: 2),
-                  _buildButtons(context),
-                  const SizedBox(height: 40),
+            child: Stack(
+              children: [
+                // ── Dreamy background blobs ─────────────────
+                _buildBackgroundBlobs(),
+                // ── Main content ────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(flex: 2),
+                      _buildLogoSection(),
+                      const SizedBox(height: 28),
+                      _buildFeatureChips(),
+                      const Spacer(flex: 2),
+                      _buildButtons(context),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Soft gradient blobs for dreamy background
+  Widget _buildBackgroundBlobs() {
+    return Stack(
+      children: [
+        Positioned(
+          top: -60,
+          right: -40,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  AppColors.pastelPeach.withValues(alpha: 0.5),
+                  AppColors.pastelPeach.withValues(alpha: 0.0),
                 ],
               ),
             ),
           ),
         ),
-      ),
+        Positioned(
+          bottom: 100,
+          left: -60,
+          child: Container(
+            width: 240,
+            height: 240,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  AppColors.pastelLavender.withValues(alpha: 0.35),
+                  AppColors.pastelLavender.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 200,
+          left: 100,
+          child: Container(
+            width: 160,
+            height: 160,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  AppColors.pastelPink.withValues(alpha: 0.3),
+                  AppColors.pastelPink.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -109,61 +162,61 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       },
       child: Column(
         children: [
-          // Animated compass logo
+          // ── Circular logo with soft glow ──────────────
           Container(
-            width: 140,
-            height: 140,
+            width: 130,
+            height: 130,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.saffron,
-                  AppColors.saffronDark,
-                ],
-              ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.saffron.withOpacity(0.35),
-                  blurRadius: 32,
-                  spreadRadius: 6,
+                  color: AppColors.saffron.withValues(alpha: 0.25),
+                  blurRadius: 40,
+                  spreadRadius: 8,
+                ),
+                BoxShadow(
+                  color: AppColors.pastelPeach.withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  spreadRadius: 2,
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.explore,
-              size: 72,
-              color: Colors.white,
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/app_logo.png',
+                fit: BoxFit.cover,
+                width: 130,
+                height: 130,
+              ),
             ),
           ),
-          const SizedBox(height: 32),
-          // App name with gradient text
+          const SizedBox(height: 28),
+          // App name
           ShaderMask(
             shaderCallback: (rect) => const LinearGradient(
-              colors: [AppColors.saffron, AppColors.gold],
+              colors: [AppColors.saffronDark, AppColors.saffron, AppColors.gold],
             ).createShader(rect),
             child: const Text(
               'VastuScan AR',
               style: TextStyle(
                 fontFamily: 'Outfit',
-                fontSize: 42,
+                fontSize: 38,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
-                letterSpacing: 1.0,
+                letterSpacing: 0.5,
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          const Text(
+          const SizedBox(height: 10),
+          Text(
             'Align Your Space with Ancient Wisdom',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w400,
-              color: AppColors.textSecondary,
-              letterSpacing: 0.5,
+              color: AppColors.textSecondary.withValues(alpha: 0.8),
+              letterSpacing: 0.3,
             ),
           ),
         ],
@@ -179,35 +232,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ('📜', 'Vastu Rules'),
     ];
     return Wrap(
-      spacing: 10,
+      spacing: 8,
       runSpacing: 8,
       alignment: WrapAlignment.center,
       children: features.map((f) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.cardSurface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.divider),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.saffron.withOpacity(0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: Colors.white.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.pastelPeach.withValues(alpha: 0.5)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(f.$1, style: const TextStyle(fontSize: 16)),
+            Text(f.$1, style: const TextStyle(fontSize: 15)),
             const SizedBox(width: 6),
             Text(
               f.$2,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondary.withValues(alpha: 0.9),
               ),
             ),
           ],
@@ -219,72 +265,141 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildButtons(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 60,
-          child: ElevatedButton(
-            onPressed: () => _handleScanPress(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.saffron,
-              foregroundColor: Colors.white,
-              elevation: 4,
-              shadowColor: AppColors.saffron.withOpacity(0.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.qr_code_scanner_rounded, size: 24),
-                SizedBox(width: 12),
-                Text(
-                  'SCAN AREA',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        // ── Primary CTA ─────────────────────────────────
+        _buildPrimaryButton(
+          onPressed: () => _handleScanPress(context),
+          icon: Icons.qr_code_scanner_rounded,
+          label: 'SCAN AREA',
         ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          height: 60,
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/info');
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.saffron,
-              side: const BorderSide(color: AppColors.saffron, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+        // ── Scan House Button (Polycam Mode) ────────
+        const SizedBox(height: 12),
+        _buildSecondaryButton(
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PolycamScannerScreen())),
+          icon: Icons.view_in_ar_rounded,
+          label: 'AR HOUSE SCANNER',
+          fullWidth: true,
+          borderColor: AppColors.compliant,
+        ),
+        const SizedBox(height: 12),
+        // ── Secondary buttons ───────────────────────────────
+        Row(
+          children: [
+            Expanded(
+              child: _buildSecondaryButton(
+                onPressed: () => _handleFloorPlanPress(context),
+                icon: Icons.grid_view_rounded,
+                label: 'FLOOR PLAN',
               ),
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.menu_book_rounded, size: 24),
-                SizedBox(width: 12),
-                Text(
-                  'VASTU INFO',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildSecondaryButton(
+                onPressed: () => Navigator.pushNamed(context, '/info'),
+                icon: Icons.menu_book_rounded,
+                label: 'VASTU INFO',
+              ),
             ),
-          ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        // ── History button ──────────────────────────────
+        _buildSecondaryButton(
+          onPressed: () => Navigator.pushNamed(context, '/history'),
+          icon: Icons.history_rounded,
+          label: 'HISTORY',
+          fullWidth: true,
         ),
       ],
+    );
+  }
+
+  Widget _buildPrimaryButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required String label,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            gradient: AppColors.pillGradient,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.saffron.withValues(alpha: 0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 22, color: Colors.white),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecondaryButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required String label,
+    bool fullWidth = false,
+    Color? borderColor,
+    Color? iconColor,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          width: fullWidth ? double.infinity : null,
+          padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.65),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor ?? AppColors.pastelPeach.withValues(alpha: 0.6)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: iconColor ?? AppColors.saffron),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -303,7 +418,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             content: Text('Location denied — compass will use demo mode'),
             duration: Duration(seconds: 2),
             backgroundColor: AppColors.saffronDark,
-            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -325,45 +439,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          backgroundColor: AppColors.cardSurface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            'Camera Permission Required',
-            style: TextStyle(
-              fontFamily: 'Outfit',
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          title: const Text('Camera Permission Required'),
           content: const Text(
             'VastuScan AR needs camera access to detect objects and analyze Vastu compliance. Please enable it in Settings.',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel',
-                  style: TextStyle(color: AppColors.textMuted)),
+              child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(ctx);
                 openAppSettings();
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.saffron,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text('Open Settings',
-                  style: TextStyle(color: Colors.white)),
+              child: const Text('Open Settings'),
             ),
           ],
         ),
@@ -374,9 +464,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           content: Text('Camera permission is required to scan objects'),
           duration: Duration(seconds: 3),
           backgroundColor: AppColors.nonCompliant,
-          behavior: SnackBarBehavior.floating,
         ),
       );
     }
+  }
+
+  void _handleFloorPlanPress(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const FloorPlanScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
+    );
   }
 }

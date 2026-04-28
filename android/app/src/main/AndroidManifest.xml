@@ -46,7 +46,7 @@
 
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="label" />
+            android:value="oci,label" />
     </application>
 
     <queries>
